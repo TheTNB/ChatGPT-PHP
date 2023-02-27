@@ -1,0 +1,22 @@
+{
+    "name": "haozi-team/chatgpt-php",
+    "description": "Real ChatGPT PHP SDK (Not GPT-3)",
+    "type": "library",
+    "require": {
+        "php": ">=8.0",
+        "guzzlehttp/guzzle": "^7.5",
+        "ramsey/uuid": "^4.7"
+    },
+    "license": "AGPL-3.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "HaoziTeam\\ChatGPT\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "耗子",
+            "email": "i@haozi.net"
+        }
+    ]
+}
