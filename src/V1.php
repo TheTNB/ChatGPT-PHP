@@ -4,15 +4,18 @@ namespace HaoziTeam\ChatGPT;
 
 use Exception;
 use Ramsey\Uuid\Uuid;
+use GuzzleHttp\Client;
 
 class V1
 {
     private $baseUrl = 'https://chatgpt.duti.tech/';
     private array $accessToken;
 
-    private $conversation_id = null;
-    private $parent_id = null;
-    private $conversation_mapping = [];
+    private $conversationId = null;
+    private $parentId = null;
+
+    private $http = null;
+    private $paid = false;
 
     // 初始化
     public function __construct($baseUrl = null)
@@ -21,11 +24,16 @@ class V1
             $this->baseUrl = $baseUrl;
         }
 
+        $this->http = new Client([
+            'base_uri' => $this->baseUrl,
+            'timeout' => 360,
+        ]);
+
         // TODO: 添加代理服务器支持
     }
 
     // 设置账号信息
-    public function addAccount($accessToken): void
+    public function addAccountAccessToken($accessToken): void
     {
         $this->accessToken[] = $accessToken;
     }
@@ -34,7 +42,7 @@ class V1
      * access token 转换为 JWT
      * @throws Exception
      */
-    private function accessTokenToJWT($accessToken): string
+    public function accessTokenToJWT($accessToken): string
     {
         if ($accessToken !== null) {
             try {
@@ -46,70 +54,71 @@ class V1
                 throw new Exception("Access token invalid");
             }
 
+            // 检查是否过期
             $exp = $dAccessToken['exp'] ?? null;
             if ($exp !== null && $exp < time()) {
                 throw new Exception("Access token expired");
             }
         }
-        return $accessToken;
+        return 'Bearer ' . $accessToken;
     }
 
     /**
-     * Ask a question to the chatbot
+     * 向ChatGPT发送消息
      * @param string $prompt
      * @param null $conversation_id
      * @param null $parent_id
      * @param int $timeout
-     * @return \Generator
      * @throws Exception
      */
-    public function ask($prompt, $conversation_id = null, $parent_id = null, $timeout = 360)
+    public function ask($prompt, $conversationId = null, $parentId = null, $timeout = 360, $account = null)
     {
-        if ($parent_id !== null && $conversation_id === null) {
+        // 如果账号为空，则随机选择一个账号
+        if ($account === null) {
+            $token = $this->accessTokenToJWT($this->accessToken[array_rand($this->accessToken)]);
+        } else {
+            $token = isset($this->accessToken[$account]) ? $this->accessTokenToJWT($this->accessToken[$account]) : null;
+        }
+
+        // 如果账号为空，则抛出异常
+        if ($token === null) {
+            throw new Exception("No account available");
+        }
+
+        // 设置了父消息ID，必须设置会话ID
+        if ($parentId !== null && $conversationId === null) {
             throw new Exception("conversation_id must be set once parent_id is set");
         }
 
-        if ($conversation_id !== null && $conversation_id !== $this->conversation_id) {
-            $this->logger->debug("Updating to new conversation by setting parent_id to None");
-            $this->parent_id = null;
+        // 如果传入的会话ID与当前会话ID不一致，则清空父消息ID以开启新的会话
+        if ($conversationId !== null && $conversationId !== $this->conversationId) {
+            $this->parentId = null;
         }
 
-        $conversation_id = $conversation_id ?? $this->conversation_id;
-        $parent_id = $parent_id ?? $this->parent_id;
-        if ($conversation_id === null && $parent_id === null) {
-            $parent_id = (string)Uuid::uuid4();
-            $this->logger->debug("New conversation, setting parent_id to new UUID4: {$parent_id}");
+        $conversationId = $conversationId ?? $this->conversationId;
+        $parentId = $parentId ?? $this->parentId;
+
+        // 如果会话ID与父消息ID都为空，则开启新的会话
+        if ($conversationId === null && $parentId === null) {
+            $parentId = (string)Uuid::uuid4();
         }
 
-        if ($conversation_id !== null && $parent_id === null) {
-            if (!isset($this->conversation_mapping[$conversation_id])) {
-                if ($this->lazy_loading) {
-                    $this->logger->debug(
-                        "Conversation ID {$conversation_id} not found in conversation mapping, try to get conversation history for the given ID"
-                    );
-                    try {
-                        $history = $this->get_msg_history($conversation_id);
-                        $this->conversation_mapping[$conversation_id] = $history['current_node'];
-                    } catch (Exception $e) {
-                        $this->logger->debug("Conversation ID {$conversation_id} not found in conversation history");
-                    }
-                } else {
-                    $this->logger->debug(
-                        "Conversation ID {$conversation_id} not found in conversation mapping, mapping conversations"
-                    );
-                }
-
-                $this->map_conversations();
-            }
-
-            if (isset($this->conversation_mapping[$conversation_id])) {
-                $this->logger->debug(
-                    "Conversation ID {$conversation_id} found in conversation mapping, setting parent_id to {$this->conversation_mapping[$conversation_id]}"
-                );
-                $parent_id = $this->conversation_mapping[$conversation_id];
-            } else { // invalid conversation_id provided, treat as a new conversation
-                $conversation_id = null;
-                $parent_id = (string)Uuid::uuid4();
+        // 如果会话ID不为空，但是父消息ID为空，则尝试从映射表中获取父消息ID
+        if ($conversationId !== null && $parentId === null) {
+            // 尝试从ChatGPT获取历史记录
+            $response = $this->http->get('api/conversation/' . $conversationId, [
+                'headers' => [
+                    'Authorization' => $token,
+                ],
+            ]);
+            $response = json_decode($response->getBody()->getContents(), true);
+            if (isset($response['current_node'])) {
+                // 如果获取到了父消息ID，则使用该父消息ID
+                $conversationId = $response['current_node'];
+            } else {
+                // 如果没有获取到父消息ID，则开启新的会话
+                $conversationId = null;
+                $parentId = (string)Uuid::uuid4();
             }
         }
 
@@ -122,22 +131,32 @@ class V1
                     'content' => ['content_type' => 'text', 'parts' => [$prompt]],
                 ],
             ],
-            'conversation_id' => $conversation_id,
-            'parent_message_id' => $parent_id,
-            'model' => $this->config['paid'] ? 'text-davinci-002-render-paid' : 'text-davinci-002-render-sha',
+            'conversation_id' => $conversationId,
+            'parent_message_id' => $parentId,
+            'model' => $this->paid ? 'text-davinci-002-render-paid' : 'text-davinci-002-render-sha',
         ];
-        $this->logger->debug("Sending the payload");
-        $this->logger->debug(json_encode($data, JSON_PRETTY_PRINT));
-        $response = $this->session->post(
-            $this->config['base_url'] . 'api/conversation',
+
+        $response = $this->http->post(
+            'api/conversation',
             [
                 'json' => $data,
                 'timeout' => $timeout,
+                'headers' => [
+                    'Authorization' => $token,
+                    'Accept' => 'text/event-stream',
+                    'Content-Type' => 'application/json',
+                    'X-Openai-Assistant-App-Id' => '',
+                    'Connection' => 'close',
+                    'Accept-Language' => 'en-US,en;q=0.9',
+                    'Referer' => 'https://chatbot.openai.com/chat',
+                ],
                 'stream' => true,
             ]
         );
+
         $this->checkResponse($response);
-        for ($line = $response->getBody()->read(1024); !empty($line); $line = $response->getBody()->read(1024)) {
+
+        foreach (explode("\n", $response->getBody()->getContents()) as $line) {
             $line = trim($line);
             if ($line === 'Internal Server Error') {
                 throw new Exception("Error: {$line}");
@@ -145,9 +164,13 @@ class V1
             if ($line === '' || $line === null) {
                 continue;
             }
+
+            // data:开头，表示数据流开始
             if (strpos($line, 'data: ') === 0) {
                 $line = substr($line, 6);
             }
+
+            // [DONE]结尾，表示数据流结束
             if ($line === '[DONE]') {
                 break;
             }
@@ -161,35 +184,57 @@ class V1
             } catch (Exception $e) {
                 continue;
             }
+
             if (!$this->checkFields($line)) {
+                if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
+                    throw new Exception("Error: Rate limit exceeded");
+                }
+                if (isset($line["detail"]["code"]) && $line["detail"]["code"] === "invalid_api_key") {
+                    throw new Exception("Error: Invalid access token");
+                }
                 throw new Exception('Field missing');
             }
-            $message = $line['message']['content']['parts'][0];
-            if ($message === $prompt) {
+
+            if ($line['message']['content']['parts'][0] === $prompt) {
                 continue;
             }
-            $conversation_id = $line['conversation_id'];
-            $parent_id = $line['message']['id'];
-            try {
-                $model = $line['message']['metadata']['model_slug'];
-            } catch (Exception $e) {
-                $model = null;
-            }
-            yield [
-                'message' => $message,
-                'conversation_id' => $conversation_id,
-                'parent_id' => $parent_id,
-                'model' => $model,
-            ];
-        }
-        $this->conversation_mapping[$conversation_id] = $parent_id;
-        if ($parent_id !== null) {
-            $this->parent_id = $parent_id;
-        }
-        if ($conversation_id !== null) {
-            $this->conversation_id = $conversation_id;
+
+            $message = $line['message']['content']['parts'][0];
+            $conversation_id = $line['conversation_id'] ?? null;
+            $parent_id = $line['message']['id'] ?? null;
+            $model = isset($line["message"]["metadata"]["model_slug"]) ? $line["message"]["metadata"]["model_slug"] : null;
         }
 
+        return [
+            'message' => $message,
+            'conversation_id' => $conversation_id,
+            'parent_id' => $parent_id,
+            'model' => $model,
+        ];
+    }
 
+    /**
+     * 检查响应状态
+     * @param $response
+     * @return void
+     * @throws Exception
+     */
+    private function checkResponse($response)
+    {
+        if ($response->getStatusCode() !== 200) {
+            throw new Exception("Error: {$response->getStatusCode()}");
+        }
+    }
+
+    /**
+     * 检查响应行是否包含必要的字段
+     * @param $line
+     * @return bool
+     */
+    private function checkFields($line)
+    {
+        return isset($line['message']['content']['parts'][0])
+            && isset($line['conversation_id'])
+            && isset($line['message']['id']);
     }
 }
