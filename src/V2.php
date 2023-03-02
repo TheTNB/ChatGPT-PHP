@@ -19,7 +19,7 @@ class V2
 
     public function __construct(string $key, string $model = null, int $temperature = null, int $topP = null, int $timeout = 360)
     {
-        $this->key = $key;
+        $this->key = 'Bearer ' . $key;
         if ($model) {
             $this->model = $model;
         }
