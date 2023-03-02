@@ -71,7 +71,17 @@ print_r($answer);
 
 ### Advanced example
 
-Refer to the [wiki](https://github.com/HaoZi-Team/ChatGPT-PHP/wiki/V1-Advanced-examples) for advanced developer usage.
+You can pass "baseUrl" to the first parameter to set a custom API endpoint.
+
+```php
+<?php
+use HaoziTeam\ChatGPT\V1 as ChatGPTV1;
+
+$chatGPT = new ChatGPTV1('https://chat.openai.com/backend-');
+```
+
+More refer to the [wiki](https://github.com/HaoZi-Team/ChatGPT-PHP/wiki/V1-Advanced-examples) for advanced developer
+usage.
 
 # V2 Official ChatGPT
 
@@ -96,6 +106,15 @@ print_r($answer);
 ```
 
 ### Advanced example
+
+You can pass "baseUrl" to the second parameter to set a custom API endpoint.
+
+```php
+<?php
+use HaoziTeam\ChatGPT\V2 as ChatGPTV2;
+
+$chatGPT = new ChatGPTV2('sk-<your_api_key>', 'https://api.openai.com/');
+```
 
 You can use `addMessage` to add messages to the conversation.
 
