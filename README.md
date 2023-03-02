@@ -60,6 +60,13 @@ $chatGPT->addAccount('<your_access_token>');
 
 $answer = $chatGPT->ask('Hello, how are you?');
 print_r($answer);
+//Array(
+//    'answer' => 'I am fine, thank you.',
+//    'conversation_id' => '<uuid>',
+//    'parent_id' => '<uuid>',
+//    'model' => 'text-davinci-002-render-sha',
+//    'account' => '0',
+//)
 ```
 
 ### Advanced example
@@ -103,6 +110,16 @@ $chatGPT->addMessage('I am fine, thank you.', 'assistant');
 
 $answer = $chatGPT->ask('What did I ask you before?');
 print_r($answer);
+//Array(
+//    'answer' => 'Hello, how are you?',
+//    'id' => 'cmpl-xxxxx',
+//    'model' => 'gpt-3.5-turbo',
+//    'usage' => [
+//        "prompt_tokens": 9,
+//        "completion_tokens": 12,
+//        "total_tokens": 21,
+//    ],
+//)
 ```
 
 You can set the `stream` parameter to `true` to get a stream for output answers as they are generated.
