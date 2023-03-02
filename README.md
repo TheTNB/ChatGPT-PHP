@@ -1,2 +1,128 @@
-# ChatGPT-PHP
-Real ChatGPT PHP SDK (Not GPT-3)
+# ChatGPT PHP SDK | [Package](https://packagist.org/packages/haozi-team/chatgpt-php)
+
+[![Total Downloads](https://poser.pugx.org/HaoZi-Team/ChatGPT-PHP/d/total.svg)](https://packagist.org/packages/haozi-team/chatgpt-php)
+[![Latest Stable Version](https://poser.pugx.org/HaoZi-Team/ChatGPT-PHP/v/stable.svg)](https://packagist.org/packages/haozi-team/chatgpt-php)
+[![License](https://poser.pugx.org/HaoZi-Team/ChatGPT-PHP/license.svg)](https://packagist.org/packages/haozi-team/chatgpt-php)
+
+Official and Reverse Engineered ChatGPT API for PHP.
+
+Reconstruct from @acheong08's [ChatGPT](https://github.com/acheong08/ChatGPT)
+
+# Installation
+
+`composer require haozi-team/chatgpt-php`
+
+# V1 Web ChatGPT
+
+> Uses `chat.openai.com`
+> - Free
+> - Rate limited
+> - Needs Bypassing Cloudflare
+
+> Default bypass server is `chatgpt.duti.tech` by @acheong08
+>
+> Rate limit: 25 requests per 10 seconds (per IP)
+>
+> OpenAI rate limit: 50 requests per hour on free accounts. You can get around it with multi-account cycling
+>
+> Plus accounts has around 150 requests per hour rate limit
+
+## Configuration
+
+1. Create account on [OpenAI's ChatGPT](https://chat.openai.com/)
+2. Save your email and password
+
+### Authentication
+
+#### - Access token
+
+Login OpenAI account and go to [https://chat.openai.com/api/auth/session](https://chat.openai.com/api/auth/session)
+to get your access_token.
+
+```json
+{
+  "access_token": "<access_token>"
+}
+```
+
+The access_token is valid for 30 days.
+
+## Developer API
+
+### Basic example
+
+```php
+<?php
+use HaoziTeam\ChatGPT\V1 as ChatGPTV1;
+
+$chatGPT = new ChatGPTV1();
+$chatGPT->addAccount('<your_access_token>');
+
+$answer = $chatGPT->ask('Hello, how are you?');
+print_r($answer);
+```
+
+### Advanced example
+
+TODO
+
+# V2 Official ChatGPT
+
+> Recently released by OpenAI
+> - Costs money
+
+Get API key from https://platform.openai.com/account/api-keys
+
+## Developer API
+
+### Basic example
+
+```php
+<?php
+use HaoziTeam\ChatGPT\V2 as ChatGPTV2;
+
+$chatGPT = new ChatGPTV2('sk-<your_api_key>');
+$chatGPT->addMessage('You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.', 'system');
+
+$answer = $chatGPT->ask('Hello, how are you?');
+print_r($answer);
+```
+
+### Advanced example
+
+You can use `addMessage` to add messages to the conversation.
+
+```php
+<?php
+use HaoziTeam\ChatGPT\V2 as ChatGPTV2;
+
+$chatGPT = new ChatGPTV2('sk-<your_api_key>');
+$chatGPT->addMessage('You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.', 'system');
+$chatGPT->addMessage('Hello, how are you?', 'user');
+$chatGPT->addMessage('I am fine, thank you.', 'assistant');
+
+$answer = $chatGPT->ask('What did I ask you before?');
+print_r($answer);
+```
+
+You can set the `stream` parameter to `true` to get a stream for output answers as they are generated.
+
+```php
+<?php
+use HaoziTeam\ChatGPT\V2 as ChatGPTV2;
+
+$chatGPT = new ChatGPTV2('sk-<your_api_key>');
+$chatGPT->addMessage('You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.', 'system');
+
+$answer = $chatGPT->ask('Hello, how are you?', null, true);
+// GuzzleHttp StreamInterface
+```
+
+# Disclaimers
+
+This is not an official OpenAI product. This is a personal project and is not affiliated with OpenAI in any way. Don't
+sue me.
+
+# Credits
+
+- [acheong08](https://github.com/acheong08) - Python ChatGPT API
