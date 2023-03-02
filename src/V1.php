@@ -10,11 +10,11 @@ use GuzzleHttp\Client;
 
 class V1
 {
-    private mixed $baseUrl = 'https://chatgpt.duti.tech/';
+    private string $baseUrl = 'https://chatgpt.duti.tech/';
     private array $accounts = [];
     private mixed $http;
 
-    public function __construct($baseUrl = null)
+    public function __construct(string $baseUrl = null, int $timeout = 360)
     {
         if ($baseUrl) {
             $this->baseUrl = $baseUrl;
@@ -22,7 +22,7 @@ class V1
 
         $this->http = new Client([
             'base_uri' => $this->baseUrl,
-            'timeout' => 360,
+            'timeout' => $timeout,
             'stream' => true,
         ]);
     }
