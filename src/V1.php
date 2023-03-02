@@ -69,32 +69,6 @@ class V1
     }
 
     /**
-     * access_token 转换为 JWT
-     * @param string $accessToken
-     * @return string
-     * @throws Exception
-     */
-    public function accessTokenToJWT(string $accessToken): string
-    {
-        try {
-            $sAccessToken = explode(".", $accessToken);
-            $sAccessToken[1] .= str_repeat("=", (4 - strlen($sAccessToken[1]) % 4) % 4);
-            $dAccessToken = base64_decode($sAccessToken[1]);
-            $dAccessToken = json_decode($dAccessToken, true);
-        } catch (Exception) {
-            throw new Exception("Access token invalid");
-        }
-
-        // 检查是否过期
-        $exp = $dAccessToken['exp'] ?? null;
-        if ($exp !== null && $exp < time()) {
-            throw new Exception("Access token expired");
-        }
-
-        return 'Bearer ' . $accessToken;
-    }
-
-    /**
      * 发送消息
      * @param string $prompt
      * @param string|null $conversationId
@@ -102,7 +76,6 @@ class V1
      * @param mixed $account
      * @param bool $stream
      * @return array|StreamInterface
-     * @throws GuzzleException
      * @throws Exception
      */
     public function ask(string $prompt, string $conversationId = null, string $parentId = null, mixed $account = null, bool $stream = false): StreamInterface|array
@@ -523,6 +496,32 @@ class V1
         }
 
         return $data;
+    }
+
+    /**
+     * access_token 转换为 JWT
+     * @param string $accessToken
+     * @return string
+     * @throws Exception
+     */
+    private function accessTokenToJWT(string $accessToken): string
+    {
+        try {
+            $sAccessToken = explode(".", $accessToken);
+            $sAccessToken[1] .= str_repeat("=", (4 - strlen($sAccessToken[1]) % 4) % 4);
+            $dAccessToken = base64_decode($sAccessToken[1]);
+            $dAccessToken = json_decode($dAccessToken, true);
+        } catch (Exception) {
+            throw new Exception("Access token invalid");
+        }
+
+        // 检查是否过期
+        $exp = $dAccessToken['exp'] ?? null;
+        if ($exp !== null && $exp < time()) {
+            throw new Exception("Access token expired");
+        }
+
+        return 'Bearer ' . $accessToken;
     }
 
 }
