@@ -71,7 +71,7 @@ print_r($answer);
 
 ### Advanced example
 
-TODO
+Refer to the [wiki](https://github.com/HaoZi-Team/ChatGPT-PHP/wiki/V1-Advanced-examples) for advanced developer usage.
 
 # V2 Official ChatGPT
 
