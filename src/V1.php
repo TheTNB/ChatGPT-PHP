@@ -197,7 +197,7 @@ class V1
             return $response->getBody();
         }
 
-        $ansewer = '';
+        $answer = '';
         $conversationId = '';
         $parentId = '';
         $model = '';
@@ -236,14 +236,14 @@ class V1
                 continue;
             }
 
-            $ansewer = $line['message']['content']['parts'][0];
+            $answer = $line['message']['content']['parts'][0];
             $conversationId = $line['conversation_id'] ?? null;
             $parentId = $line['message']['id'] ?? null;
             $model = $line["message"]["metadata"]["model_slug"] ?? null;
         }
 
         return [
-            'answer' => $ansewer,
+            'answer' => $answer,
             'conversation_id' => $conversationId,
             'parent_id' => $parentId,
             'model' => $model,
