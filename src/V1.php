@@ -223,10 +223,10 @@ class V1
                 if (isset($line["detail"]) && $line["detail"] === "Something went wrong, please try reloading the conversation.") {
                     throw new Exception("Something went wrong, please try reloading the conversation.");
                 }
-                if (isset($line["detail"]["code"]) && $line["detail"]["code"] === "invalid_api_key") {
+                if (isset($line["detail"]) && $line["detail"] === "invalid_api_key") {
                     throw new Exception("Invalid access token");
                 }
-                if (isset($line["detail"]["code"]) && $line["detail"]["code"] === "invalid_token") {
+                if (isset($line["detail"]) && $line["detail"] === "invalid_token") {
                     throw new Exception("Invalid access token");
                 }
                 throw new Exception('Field missing');
