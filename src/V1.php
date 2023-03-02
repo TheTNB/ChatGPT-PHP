@@ -136,11 +136,16 @@ class V1
 
         // 如果会话ID不为空，但是父消息ID为空，则尝试从ChatGPT获取历史记录
         if ($conversationId !== null && $parentId === null) {
-            $response = $this->http->get('api/conversation/' . $conversationId, [
-                'headers' => [
-                    'Authorization' => $token,
-                ],
-            ]);
+            try {
+                $response = $this->http->get('api/conversation/' . $conversationId, [
+                    'headers' => [
+                        'Authorization' => $token,
+                    ],
+                ]);
+            } catch (GuzzleException $e) {
+                throw new Exception("Request failed: " . $e->getMessage());
+            }
+
             $response = json_decode($response->getBody()->getContents(), true);
             if (isset($response['current_node'])) {
                 // 如果获取到了父消息ID，则使用该父消息ID
