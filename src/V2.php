@@ -1,6 +1,6 @@
 <?php
 
-namespace HaoziTeam\ChatGPT;
+namespace HaoZiTeam\ChatGPT;
 
 use Exception;
 use GuzzleHttp\Client;

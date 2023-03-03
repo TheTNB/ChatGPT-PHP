@@ -18,12 +18,12 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "HaoziTeam\\ChatGPT\\": "src/"
+      "HaoZiTeam\\ChatGPT\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "HaoziTeam\\ChatGPT\\Tests\\": "tests/"
+      "HaoZiTeam\\ChatGPT\\Tests\\": "tests/"
     }
   },
   "authors": [

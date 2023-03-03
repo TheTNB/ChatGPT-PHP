@@ -1,6 +1,6 @@
 <?php
 
-use HaoziTeam\ChatGPT\V2;
+use HaoZiTeam\ChatGPT\V2;
 
 $secretKey = getenv('OPENAI_SECRET_KEY');
 $chatGPT = new V2($secretKey);

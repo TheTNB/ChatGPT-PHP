@@ -1,6 +1,6 @@
 <?php
 
-use HaoziTeam\ChatGPT\V1;
+use HaoZiTeam\ChatGPT\V1;
 
 $accessToken = getenv('OPENAI_ACCESS_TOKEN');
 $chatGPT = new V1();

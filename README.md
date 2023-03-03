@@ -53,7 +53,7 @@ The access_token is valid for 30 days.
 
 ```php
 <?php
-use HaoziTeam\ChatGPT\V1 as ChatGPTV1;
+use HaoZiTeam\ChatGPT\V1 as ChatGPTV1;
 
 $chatGPT = new ChatGPTV1();
 $chatGPT->addAccount('<your_access_token>');
@@ -75,7 +75,7 @@ You can pass "baseUrl" to the first parameter to set a custom API endpoint.
 
 ```php
 <?php
-use HaoziTeam\ChatGPT\V1 as ChatGPTV1;
+use HaoZiTeam\ChatGPT\V1 as ChatGPTV1;
 
 $chatGPT = new ChatGPTV1('https://chat.openai.com/backend-');
 ```
@@ -96,7 +96,7 @@ Get API key from https://platform.openai.com/account/api-keys
 
 ```php
 <?php
-use HaoziTeam\ChatGPT\V2 as ChatGPTV2;
+use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
 
 $chatGPT = new ChatGPTV2('sk-<your_api_key>');
 $chatGPT->addMessage('You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.', 'system');
@@ -111,7 +111,7 @@ You can pass "baseUrl" to the second parameter to set a custom API endpoint.
 
 ```php
 <?php
-use HaoziTeam\ChatGPT\V2 as ChatGPTV2;
+use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
 
 $chatGPT = new ChatGPTV2('sk-<your_api_key>', 'https://api.openai.com/');
 ```
@@ -120,7 +120,7 @@ You can use `addMessage` to add messages to the conversation.
 
 ```php
 <?php
-use HaoziTeam\ChatGPT\V2 as ChatGPTV2;
+use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
 
 $chatGPT = new ChatGPTV2('sk-<your_api_key>');
 $chatGPT->addMessage('You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.', 'system');
@@ -145,7 +145,7 @@ You can set the `stream` parameter to `true` to get a stream for output answers 
 
 ```php
 <?php
-use HaoziTeam\ChatGPT\V2 as ChatGPTV2;
+use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
 
 $chatGPT = new ChatGPTV2('sk-<your_api_key>');
 $chatGPT->addMessage('You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.', 'system');
