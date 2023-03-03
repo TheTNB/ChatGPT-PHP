@@ -14,6 +14,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      OPENAI_SECRET_KEY: ${{ secrets.OPENAI_SECRET_KEY }}
+      OPENAI_ACCESS_TOKEN: ${{ secrets.OPENAI_ACCESS_TOKEN }}
+
     steps:
       - uses: actions/checkout@v3
 

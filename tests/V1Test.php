@@ -2,7 +2,7 @@
 
 use HaoziTeam\ChatGPT\V1;
 
-$accessToken = getenv('OPENAI_SECRET_KEY');
+$accessToken = getenv('OPENAI_ACCESS_TOKEN');
 $chatGPT = new V1();
 $chatGPT->addAccount($accessToken);
 $test = $chatGPT->ask('Hello');
