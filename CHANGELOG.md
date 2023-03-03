@@ -2,6 +2,10 @@
 
 All notable changes to `chatgpt-php` will be documented in this file.
 
+## 1.4.5 - 2023-03-03
+
+Add checkStreamFields method.
+
 ## 1.4.4 - 2023-03-03
 
 Update V2 tests.
