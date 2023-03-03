@@ -80,7 +80,7 @@ class V2
             'temperature' => $this->temperature,
             'top_p' => $this->topP,
             'n' => 1,
-            'user' => $user ?? 'chatgpt-php'
+            'user' => $user ?? 'chatgpt-php',
         ];
 
         try {
