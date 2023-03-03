@@ -108,7 +108,7 @@ class V2
             throw new Exception('Response is not json');
         }
 
-        if (! $this->checkFields($data)) {
+        if (!$this->checkFields($data)) {
             throw new Exception('Field missing');
         }
 
@@ -131,6 +131,16 @@ class V2
     public function checkFields(mixed $line): bool
     {
         return isset($line['choices'][0]['message']['content']) && isset($line['id']) && isset($line['usage']);
+    }
+
+    /**
+     * 检查流响应行是否包含必要的字段
+     * @param mixed $line
+     * @return bool
+     */
+    public function checkStreamFields(mixed $line): bool
+    {
+        return isset($line['choices'][0]['delta']['content']) && isset($line['id']);
     }
 
     /**
