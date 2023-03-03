@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  cs-fixer:
 
     runs-on: ubuntu-latest
 
