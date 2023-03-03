@@ -3,15 +3,17 @@
 namespace HaoziTeam\ChatGPT;
 
 use Exception;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\StreamInterface;
 use Ramsey\Uuid\Uuid;
-use GuzzleHttp\Client;
 
 class V1
 {
     private string $baseUrl = 'https://chatgpt.duti.tech/';
+
     private array $accounts = [];
+
     private mixed $http;
 
     public function __construct(string $baseUrl = null, int $timeout = 360)
@@ -83,6 +85,7 @@ class V1
         // 如果账号为空，则随机选择一个账号
         if ($account === null) {
             $account = array_rand($this->accounts);
+
             try {
                 $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
             } catch (Exception) {
@@ -186,7 +189,7 @@ class V1
 
             $line = $this->formatStreamMessage($line);
 
-            if (!$this->checkFields($line)) {
+            if (! $this->checkFields($line)) {
                 if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                     throw new Exception("Rate limit exceeded");
                 }
@@ -202,7 +205,8 @@ class V1
                 if (isset($line["detail"]) && $line["detail"] === "invalid_token") {
                     throw new Exception("Invalid access token");
                 }
-                throw new Exception('Field missing');
+
+                continue;
             }
 
             if ($line['message']['content']['parts'][0] === $prompt) {
@@ -259,7 +263,7 @@ class V1
             throw new Exception('Response is not json');
         }
 
-        if (!isset($data['items'])) {
+        if (! isset($data['items'])) {
             throw new Exception('Field missing');
         }
 
@@ -523,5 +527,4 @@ class V1
 
         return 'Bearer ' . $accessToken;
     }
-
 }

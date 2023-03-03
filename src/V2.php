@@ -3,18 +3,24 @@
 namespace HaoziTeam\ChatGPT;
 
 use Exception;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\StreamInterface;
-use GuzzleHttp\Client;
 
 class V2
 {
     private string $baseUrl = 'https://api.openai.com/';
+
     private string $model = 'gpt-3.5-turbo';
+
     private string $key;
+
     private int $temperature = 1;
+
     private int $topP = 1;
+
     private array $messages = [];
+
     private mixed $http;
 
     public function __construct(string $key, string $baseUrl = null, string $model = null, int $temperature = null, int $topP = null, int $timeout = 360)
@@ -64,7 +70,6 @@ class V2
      */
     public function ask(string $prompt, string $user = null, bool $stream = false): StreamInterface|array
     {
-
         // 将消息添加到消息列表中
         $this->addMessage($prompt);
 
@@ -75,7 +80,7 @@ class V2
             'temperature' => $this->temperature,
             'top_p' => $this->topP,
             'n' => 1,
-            'user' => $user,
+            'user' => $user ?? 'chatgpt-php',
         ];
 
         try {
@@ -103,7 +108,7 @@ class V2
             throw new Exception('Response is not json');
         }
 
-        if (!$this->checkFields($data)) {
+        if (! $this->checkFields($data)) {
             throw new Exception('Field missing');
         }
 
@@ -152,5 +157,4 @@ class V2
 
         return $data;
     }
-
 }
