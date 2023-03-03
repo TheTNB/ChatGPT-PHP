@@ -17,7 +17,7 @@ class V2
     private array $messages = [];
     private mixed $http;
 
-    public function __construct(string $key, string $baseUrl, string $model = null, int $temperature = null, int $topP = null, int $timeout = 360)
+    public function __construct(string $key, string $baseUrl = null, string $model = null, int $temperature = null, int $topP = null, int $timeout = 360)
     {
         $this->key = 'Bearer ' . $key;
         if ($baseUrl) {
