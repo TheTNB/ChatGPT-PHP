@@ -108,7 +108,7 @@ class V2
             throw new Exception('Response is not json');
         }
 
-        if (!$this->checkFields($data)) {
+        if (! $this->checkFields($data)) {
             throw new Exception('Field missing');
         }
 
