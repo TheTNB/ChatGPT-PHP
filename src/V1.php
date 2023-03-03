@@ -206,7 +206,7 @@ class V1
                     throw new Exception("Invalid access token");
                 }
 
-                throw new Exception('Field missing');
+                continue;
             }
 
             if ($line['message']['content']['parts'][0] === $prompt) {
