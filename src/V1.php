@@ -488,11 +488,8 @@ class V1
         if (empty($matches[1])) {
             return false;
         }
-        $line = $matches[1];
-        $line = str_replace('\\"', '"', $line);
-        $line = str_replace("\\'", "'", $line);
-        $line = str_replace("\\\\", "\\", $line);
 
+        $line = $matches[1];
         $data = json_decode($line, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
