@@ -2,6 +2,11 @@
 
 All notable changes to `chatgpt-php` will be documented in this file.
 
+## 1.5.1 - 2023-03-06
+
+Remove str_replace.
+It may cause return code string error.
+
 ## 1.5.0 - 2023-03-03
 
 Fix spelling error.
