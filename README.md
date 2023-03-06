@@ -19,9 +19,7 @@ Reconstruct from @acheong08's [ChatGPT](https://github.com/acheong08/ChatGPT)
 > - Rate limited
 > - Needs Bypassing Cloudflare
 
-> Default bypass server is `chatgpt.duti.tech` by @acheong08
->
-> Rate limit: 25 requests per 10 seconds (per IP)
+> Default api endpoint is `https://apps.openai.com/`
 >
 > OpenAI rate limit: 50 requests per hour on free accounts. You can get around it with multi-account cycling
 >

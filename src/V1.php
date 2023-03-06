@@ -10,7 +10,7 @@ use Ramsey\Uuid\Uuid;
 
 class V1
 {
-    private string $baseUrl = 'https://chatgpt.duti.tech/';
+    private string $baseUrl = 'https://apps.openai.com/';
 
     private array $accounts = [];
 
