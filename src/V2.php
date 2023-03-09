@@ -5,7 +5,6 @@ namespace HaoZiTeam\ChatGPT;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Psr\Http\Message\StreamInterface;
 
 class V2
 {
@@ -114,7 +113,7 @@ class V2
             throw new Exception('Response is not json');
         }
 
-        if (!$this->checkFields($data)) {
+        if (! $this->checkFields($data)) {
             throw new Exception('Field missing');
         }
 

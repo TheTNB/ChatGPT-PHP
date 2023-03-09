@@ -5,7 +5,6 @@ namespace HaoZiTeam\ChatGPT;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Psr\Http\Message\StreamInterface;
 use Ramsey\Uuid\Uuid;
 
 class V1
@@ -194,7 +193,7 @@ class V1
 
             $line = $this->formatStreamMessage($line);
 
-            if (!$this->checkFields($line)) {
+            if (! $this->checkFields($line)) {
                 if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                     throw new Exception("Rate limit exceeded");
                 }
@@ -268,7 +267,7 @@ class V1
             throw new Exception('Response is not json');
         }
 
-        if (!isset($data['items'])) {
+        if (! isset($data['items'])) {
             throw new Exception('Field missing');
         }
 
