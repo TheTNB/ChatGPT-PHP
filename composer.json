@@ -9,8 +9,8 @@
   "type": "library",
   "require": {
     "php": ">=7.4",
-    "guzzlehttp/guzzle": "^7.5",
-    "ramsey/uuid": "^4.7"
+    "guzzlehttp/guzzle": "^7.2.0",
+    "ramsey/uuid": "^4.2.0"
   },
   "require-dev": {
     "pestphp/pest": "^1.22"
