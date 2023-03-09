@@ -2,6 +2,10 @@
 
 All notable changes to `chatgpt-php` will be documented in this file.
 
+## 1.5.3 - 2023-03-09
+
+Fix V1 endpoint. (By Pawan's API)
+
 ## 1.5.2 - 2023-03-06
 
 Use apps.openai.com as V1 default api endpoint.
