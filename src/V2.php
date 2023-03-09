@@ -8,19 +8,19 @@ use GuzzleHttp\Exception\GuzzleException;
 
 class V2
 {
-    private string $baseUrl = 'https://api.openai.com/';
+    private $baseUrl = 'https://api.openai.com/';
 
-    private string $model = 'gpt-3.5-turbo';
+    private $model = 'gpt-3.5-turbo';
 
-    private string $key;
+    private $key;
 
-    private int $temperature = 1;
+    private $temperature = 1;
 
-    private int $topP = 1;
+    private $topP = 1;
 
-    private array $messages = [];
+    private $messages = [];
 
-    private mixed $http;
+    private $http;
 
     public function __construct(
         string $key,
@@ -133,7 +133,7 @@ class V2
      * @param  mixed  $line
      * @return bool
      */
-    public function checkFields(mixed $line): bool
+    public function checkFields($line): bool
     {
         return isset($line['choices'][0]['message']['content']) && isset($line['id']) && isset($line['usage']);
     }
@@ -143,7 +143,7 @@ class V2
      * @param  mixed  $line
      * @return bool
      */
-    public function checkStreamFields(mixed $line): bool
+    public function checkStreamFields($line): bool
     {
         return isset($line['choices'][0]['delta']['content']) && isset($line['id']);
     }

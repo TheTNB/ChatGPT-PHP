@@ -9,11 +9,11 @@ use Ramsey\Uuid\Uuid;
 
 class V1
 {
-    private string $baseUrl = 'https://gpt.pawan.krd/';
+    private $baseUrl = 'https://gpt.pawan.krd/';
 
-    private array $accounts = [];
+    private $accounts = [];
 
-    private mixed $http;
+    private $http;
 
     public function __construct(string $baseUrl = null, int $timeout = 360)
     {
@@ -35,7 +35,7 @@ class V1
      * @param  bool  $paid
      * @return void
      */
-    public function addAccount(string $accessToken, mixed $name = null, bool $paid = false): void
+    public function addAccount(string $accessToken, $name = null, bool $paid = false): void
     {
         if ($name === null) {
             $this->accounts[] = [
@@ -83,7 +83,7 @@ class V1
         string $prompt,
         string $conversationId = null,
         string $parentId = null,
-        mixed $account = null,
+        $account = null,
         bool $stream = false
     ) {
         // 如果账号为空，则随机选择一个账号
