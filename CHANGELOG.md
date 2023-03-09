@@ -2,6 +2,10 @@
 
 All notable changes to `chatgpt-php` will be documented in this file.
 
+## 1.6.1 - 2023-03-09
+
+Add headers for bypass cloudflare 403.
+
 ## 1.6.0 - 2023-03-09
 
 Add PHP 7.4 Support.
