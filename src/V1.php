@@ -10,7 +10,7 @@ use Ramsey\Uuid\Uuid;
 
 class V1
 {
-    private string $baseUrl = 'https://apps.openai.com/';
+    private string $baseUrl = 'https://gpt.pawan.krd/';
 
     private array $accounts = [];
 
@@ -113,7 +113,7 @@ class V1
         // 如果会话ID不为空，但是父消息ID为空，则尝试从ChatGPT获取历史记录
         if ($conversationId !== null && $parentId === null) {
             try {
-                $response = $this->http->get('api/conversation/' . $conversationId, [
+                $response = $this->http->get('backend-api/conversation/' . $conversationId, [
                     'headers' => [
                         'Authorization' => $token,
                     ],
@@ -149,7 +149,7 @@ class V1
 
         try {
             $response = $this->http->post(
-                'api/conversation',
+                'backend-api/conversation',
                 [
                     'json' => $data,
                     'headers' => [
@@ -245,7 +245,7 @@ class V1
         }
 
         try {
-            $response = $this->http->get('api/conversations', [
+            $response = $this->http->get('backend-api/conversations', [
                 'headers' => [
                     'Authorization' => $token,
                 ],
@@ -286,7 +286,7 @@ class V1
         }
 
         try {
-            $response = $this->http->get('api/conversation/' . $conversationId, [
+            $response = $this->http->get('backend-api/conversation/' . $conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                 ],
@@ -320,7 +320,7 @@ class V1
         }
 
         try {
-            $response = $this->http->post('api/conversation/gen_title/' . $conversationId, [
+            $response = $this->http->post('backend-api/conversation/gen_title/' . $conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                 ],
@@ -362,7 +362,7 @@ class V1
         }
 
         try {
-            $response = $this->http->patch('api/conversation/' . $conversationId, [
+            $response = $this->http->patch('backend-api/conversation/' . $conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                 ],
@@ -402,7 +402,7 @@ class V1
         }
 
         try {
-            $response = $this->http->patch('api/conversation/' . $conversationId, [
+            $response = $this->http->patch('backend-api/conversation/' . $conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                 ],
@@ -441,7 +441,7 @@ class V1
         }
 
         try {
-            $response = $this->http->patch('api/conversations', [
+            $response = $this->http->patch('backend-api/conversations', [
                 'headers' => [
                     'Authorization' => $token,
                 ],

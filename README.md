@@ -13,13 +13,14 @@ Reconstruct from @acheong08's [ChatGPT](https://github.com/acheong08/ChatGPT)
 `composer require haozi-team/chatgpt-php`
 
 # V1 Web ChatGPT
+## Notice: apps.openai.com is closed in 2023-03-09, Now use Pawan's bypass server, May be slow and unstable. Suggest to use V2 Official ChatGPT.
 
 > Uses `chat.openai.com`
 > - Free
 > - Rate limited
 > - Needs Bypassing Cloudflare
 
-> Default api endpoint is `https://apps.openai.com/`
+> Default api endpoint is `https://gpt.pawan.krd/`
 >
 > OpenAI rate limit: 50 requests per hour on free accounts. You can get around it with multi-account cycling
 >
