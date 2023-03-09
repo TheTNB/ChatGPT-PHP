@@ -31,9 +31,9 @@ class V1
 
     /**
      * 设置账号
-     * @param string $accessToken
-     * @param mixed $name
-     * @param bool $paid
+     * @param  string  $accessToken
+     * @param  mixed  $name
+     * @param  bool  $paid
      * @return void
      */
     public function addAccount(string $accessToken, mixed $name = null, bool $paid = false): void
@@ -53,7 +53,7 @@ class V1
 
     /**
      * 获取账号
-     * @param string $name
+     * @param  string  $name
      * @return array
      */
     public function getAccount(string $name): array
@@ -72,24 +72,29 @@ class V1
 
     /**
      * 发送消息
-     * @param string $prompt
-     * @param string|null $conversationId
-     * @param string|null $parentId
-     * @param mixed $account
-     * @param bool $stream
-     * @return array|StreamInterface
+     * @param  string  $prompt
+     * @param  string|null  $conversationId
+     * @param  string|null  $parentId
+     * @param  mixed  $account
+     * @param  bool  $stream
+     * @return mixed
      * @throws Exception
      */
-    public function ask(string $prompt, string $conversationId = null, string $parentId = null, mixed $account = null, bool $stream = false): StreamInterface|array
-    {
+    public function ask(
+        string $prompt,
+        string $conversationId = null,
+        string $parentId = null,
+        mixed $account = null,
+        bool $stream = false
+    ) {
         // 如果账号为空，则随机选择一个账号
         if ($account === null) {
             $account = array_rand($this->accounts);
 
             try {
                 $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
-            } catch (Exception) {
-                throw new Exception("Account " . $account . " is invalid");
+            } catch (Exception $e) {
+                throw new Exception("Account ".$account." is invalid");
             }
         } else {
             $token = isset($this->accounts[$account]['access_token']) ? $this->accessTokenToJWT($this->accounts[$account]['access_token']) : null;
@@ -107,19 +112,19 @@ class V1
 
         // 如果会话ID与父消息ID都为空，则开启新的会话
         if ($conversationId === null && $parentId === null) {
-            $parentId = (string)Uuid::uuid4();
+            $parentId = (string) Uuid::uuid4();
         }
 
         // 如果会话ID不为空，但是父消息ID为空，则尝试从ChatGPT获取历史记录
         if ($conversationId !== null && $parentId === null) {
             try {
-                $response = $this->http->get('backend-api/conversation/' . $conversationId, [
+                $response = $this->http->get('backend-api/conversation/'.$conversationId, [
                     'headers' => [
                         'Authorization' => $token,
                     ],
                 ]);
             } catch (GuzzleException $e) {
-                throw new Exception("Request failed: " . $e->getMessage());
+                throw new Exception("Request failed: ".$e->getMessage());
             }
 
             $response = json_decode($response->getBody()->getContents(), true);
@@ -129,7 +134,7 @@ class V1
             } else {
                 // 如果没有获取到父消息ID，则开启新的会话
                 $conversationId = null;
-                $parentId = (string)Uuid::uuid4();
+                $parentId = (string) Uuid::uuid4();
             }
         }
 
@@ -137,7 +142,7 @@ class V1
             'action' => 'next',
             'messages' => [
                 [
-                    'id' => (string)Uuid::uuid4(),
+                    'id' => (string) Uuid::uuid4(),
                     'role' => 'user',
                     'content' => ['content_type' => 'text', 'parts' => [$prompt]],
                 ],
@@ -189,7 +194,7 @@ class V1
 
             $line = $this->formatStreamMessage($line);
 
-            if (! $this->checkFields($line)) {
+            if (!$this->checkFields($line)) {
                 if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                     throw new Exception("Rate limit exceeded");
                 }
@@ -230,17 +235,17 @@ class V1
 
     /**
      * 获取会话列表
-     * @param int $offset
-     * @param int $limit
-     * @param mixed $account
+     * @param  int  $offset
+     * @param  int  $limit
+     * @param  mixed  $account
      * @return array
      * @throws Exception
      */
-    public function getConversations(int $offset = 0, int $limit = 20, mixed $account = 0): array
+    public function getConversations(int $offset = 0, int $limit = 20, $account = 0): array
     {
         try {
             $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
-        } catch (Exception) {
+        } catch (Exception $e) {
             throw new Exception("Invalid account");
         }
 
@@ -263,7 +268,7 @@ class V1
             throw new Exception('Response is not json');
         }
 
-        if (! isset($data['items'])) {
+        if (!isset($data['items'])) {
             throw new Exception('Field missing');
         }
 
@@ -272,21 +277,21 @@ class V1
 
     /**
      * 获取会话消息列表
-     * @param string $conversationId
-     * @param mixed $account
+     * @param  string  $conversationId
+     * @param  mixed  $account
      * @return array
      * @throws Exception
      */
-    public function getConversationMessages(string $conversationId, mixed $account = 0): array
+    public function getConversationMessages(string $conversationId, $account = 0): array
     {
         try {
             $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
-        } catch (Exception) {
+        } catch (Exception $e) {
             throw new Exception("Invalid account");
         }
 
         try {
-            $response = $this->http->get('backend-api/conversation/' . $conversationId, [
+            $response = $this->http->get('backend-api/conversation/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                 ],
@@ -305,22 +310,22 @@ class V1
 
     /**
      * 生成会话标题
-     * @param string $conversationId
-     * @param string $messageId
-     * @param mixed $account
+     * @param  string  $conversationId
+     * @param  string  $messageId
+     * @param  mixed  $account
      * @return bool
      * @throws Exception
      */
-    public function generateConversationTitle(string $conversationId, string $messageId, mixed $account = 0): bool
+    public function generateConversationTitle(string $conversationId, string $messageId, $account = 0): bool
     {
         try {
             $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
-        } catch (Exception) {
+        } catch (Exception $e) {
             throw new Exception("Invalid account");
         }
 
         try {
-            $response = $this->http->post('backend-api/conversation/gen_title/' . $conversationId, [
+            $response = $this->http->post('backend-api/conversation/gen_title/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                 ],
@@ -347,22 +352,22 @@ class V1
 
     /**
      * 修改会话标题
-     * @param string $conversationId
-     * @param string $title
-     * @param mixed $account
+     * @param  string  $conversationId
+     * @param  string  $title
+     * @param  mixed  $account
      * @return bool
      * @throws Exception
      */
-    public function updateConversationTitle(string $conversationId, string $title, mixed $account = 0): bool
+    public function updateConversationTitle(string $conversationId, string $title, $account = 0): bool
     {
         try {
             $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
-        } catch (Exception) {
+        } catch (Exception $e) {
             throw new Exception("Invalid account");
         }
 
         try {
-            $response = $this->http->patch('backend-api/conversation/' . $conversationId, [
+            $response = $this->http->patch('backend-api/conversation/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                 ],
@@ -388,21 +393,21 @@ class V1
 
     /**
      * 删除会话
-     * @param string $conversationId
-     * @param mixed $account
+     * @param  string  $conversationId
+     * @param  mixed  $account
      * @return bool
      * @throws Exception
      */
-    public function deleteConversation(string $conversationId, mixed $account = 0): bool
+    public function deleteConversation(string $conversationId, $account = 0): bool
     {
         try {
             $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
-        } catch (Exception) {
+        } catch (Exception $e) {
             throw new Exception("Invalid account");
         }
 
         try {
-            $response = $this->http->patch('backend-api/conversation/' . $conversationId, [
+            $response = $this->http->patch('backend-api/conversation/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                 ],
@@ -428,15 +433,15 @@ class V1
 
     /**
      * 清空会话
-     * @param mixed $account
+     * @param  mixed  $account
      * @return bool
      * @throws Exception
      */
-    public function clearConversations(mixed $account = 0): bool
+    public function clearConversations($account = 0): bool
     {
         try {
             $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
-        } catch (Exception) {
+        } catch (Exception $e) {
             throw new Exception("Invalid account");
         }
 
@@ -467,10 +472,10 @@ class V1
 
     /**
      * 检查响应行是否包含必要的字段
-     * @param mixed $line
+     * @param  mixed  $line
      * @return bool
      */
-    public function checkFields(mixed $line): bool
+    public function checkFields($line): bool
     {
         return isset($line['message']['content']['parts'][0])
             && isset($line['conversation_id'])
@@ -479,10 +484,10 @@ class V1
 
     /**
      * 格式化流消息为数组
-     * @param string $line
+     * @param  string  $line
      * @return array|false
      */
-    public function formatStreamMessage(string $line): array|false
+    public function formatStreamMessage(string $line)
     {
         preg_match('/data: (.*)/', $line, $matches);
         if (empty($matches[1])) {
@@ -501,7 +506,7 @@ class V1
 
     /**
      * access_token 转换为 JWT
-     * @param string $accessToken
+     * @param  string  $accessToken
      * @return string
      * @throws Exception
      */
@@ -512,7 +517,7 @@ class V1
             $sAccessToken[1] .= str_repeat("=", (4 - strlen($sAccessToken[1]) % 4) % 4);
             $dAccessToken = base64_decode($sAccessToken[1]);
             $dAccessToken = json_decode($dAccessToken, true);
-        } catch (Exception) {
+        } catch (Exception $e) {
             throw new Exception("Access token invalid");
         }
 
@@ -522,6 +527,6 @@ class V1
             throw new Exception("Access token expired");
         }
 
-        return 'Bearer ' . $accessToken;
+        return 'Bearer '.$accessToken;
     }
 }

@@ -8,7 +8,7 @@
   "homepage": "https://github.com/HaoZi-Team/ChatGPT-PHP",
   "type": "library",
   "require": {
-    "php": ">=8.0",
+    "php": ">=7.4",
     "guzzlehttp/guzzle": "^7.5",
     "ramsey/uuid": "^4.7"
   },

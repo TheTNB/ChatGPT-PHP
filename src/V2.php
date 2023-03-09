@@ -23,9 +23,15 @@ class V2
 
     private mixed $http;
 
-    public function __construct(string $key, string $baseUrl = null, string $model = null, int $temperature = null, int $topP = null, int $timeout = 360)
-    {
-        $this->key = 'Bearer ' . $key;
+    public function __construct(
+        string $key,
+        string $baseUrl = null,
+        string $model = null,
+        int $temperature = null,
+        int $topP = null,
+        int $timeout = 360
+    ) {
+        $this->key = 'Bearer '.$key;
         if ($baseUrl) {
             $this->baseUrl = $baseUrl;
         }
@@ -48,8 +54,8 @@ class V2
 
     /**
      * 添加消息
-     * @param string $message
-     * @param string $role
+     * @param  string  $message
+     * @param  string  $role
      * @return void
      */
     public function addMessage(string $message, string $role = 'user'): void
@@ -62,13 +68,13 @@ class V2
 
     /**
      * 发送消息
-     * @param string $prompt
-     * @param string|null $user
-     * @param bool $stream
-     * @return array|StreamInterface
+     * @param  string  $prompt
+     * @param  string|null  $user
+     * @param  bool  $stream
+     * @return mixed
      * @throws Exception
      */
-    public function ask(string $prompt, string $user = null, bool $stream = false): StreamInterface|array
+    public function ask(string $prompt, string $user = null, bool $stream = false)
     {
         // 将消息添加到消息列表中
         $this->addMessage($prompt);
@@ -108,7 +114,7 @@ class V2
             throw new Exception('Response is not json');
         }
 
-        if (! $this->checkFields($data)) {
+        if (!$this->checkFields($data)) {
             throw new Exception('Field missing');
         }
 
@@ -125,7 +131,7 @@ class V2
 
     /**
      * 检查响应行是否包含必要的字段
-     * @param mixed $line
+     * @param  mixed  $line
      * @return bool
      */
     public function checkFields(mixed $line): bool
@@ -135,7 +141,7 @@ class V2
 
     /**
      * 检查流响应行是否包含必要的字段
-     * @param mixed $line
+     * @param  mixed  $line
      * @return bool
      */
     public function checkStreamFields(mixed $line): bool
@@ -145,10 +151,10 @@ class V2
 
     /**
      * 格式化流消息为数组
-     * @param string $line
-     * @return array|false
+     * @param  string  $line
+     * @return mixed
      */
-    public function formatStreamMessage(string $line): array|false
+    public function formatStreamMessage(string $line)
     {
         preg_match('/data: (.*)/', $line, $matches);
         if (empty($matches[1])) {
