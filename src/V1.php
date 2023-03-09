@@ -120,6 +120,9 @@ class V1
                 $response = $this->http->get('backend-api/conversation/'.$conversationId, [
                     'headers' => [
                         'Authorization' => $token,
+                        'Content-Type' => 'application/json',
+                        'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                        'Referer' => 'https://chat.openai.com/chat',
                     ],
                 ]);
             } catch (GuzzleException $e) {
@@ -160,10 +163,11 @@ class V1
                         'Authorization' => $token,
                         'Accept' => 'text/event-stream',
                         'Content-Type' => 'application/json',
+                        'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
                         'X-Openai-Assistant-App-Id' => '',
                         'Connection' => 'close',
                         'Accept-Language' => 'en-US,en;q=0.9',
-                        'Referer' => 'https://chatbot.openai.com/chat',
+                        'Referer' => 'https://chat.openai.com/chat',
                     ],
                     'stream' => true,
                 ]
@@ -193,7 +197,7 @@ class V1
 
             $line = $this->formatStreamMessage($line);
 
-            if (! $this->checkFields($line)) {
+            if (!$this->checkFields($line)) {
                 if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                     throw new Exception("Rate limit exceeded");
                 }
@@ -252,6 +256,8 @@ class V1
             $response = $this->http->get('backend-api/conversations', [
                 'headers' => [
                     'Authorization' => $token,
+                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                    'Referer' => 'https://chat.openai.com/chat',
                 ],
                 'query' => [
                     'offset' => $offset,
@@ -267,7 +273,7 @@ class V1
             throw new Exception('Response is not json');
         }
 
-        if (! isset($data['items'])) {
+        if (!isset($data['items'])) {
             throw new Exception('Field missing');
         }
 
@@ -293,6 +299,8 @@ class V1
             $response = $this->http->get('backend-api/conversation/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
+                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                    'Referer' => 'https://chat.openai.com/chat',
                 ],
             ])->getBody()->getContents();
         } catch (GuzzleException $e) {
@@ -327,6 +335,8 @@ class V1
             $response = $this->http->post('backend-api/conversation/gen_title/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
+                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                    'Referer' => 'https://chat.openai.com/chat',
                 ],
                 'json' => [
                     'message_id' => $messageId,
@@ -369,6 +379,8 @@ class V1
             $response = $this->http->patch('backend-api/conversation/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
+                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                    'Referer' => 'https://chat.openai.com/chat',
                 ],
                 'json' => [
                     'title' => $title,
@@ -409,6 +421,8 @@ class V1
             $response = $this->http->patch('backend-api/conversation/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
+                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                    'Referer' => 'https://chat.openai.com/chat',
                 ],
                 'json' => [
                     'is_visible' => false,
@@ -448,6 +462,8 @@ class V1
             $response = $this->http->patch('backend-api/conversations', [
                 'headers' => [
                     'Authorization' => $token,
+                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                    'Referer' => 'https://chat.openai.com/chat',
                 ],
                 'json' => [
                     'is_visible' => false,
