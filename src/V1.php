@@ -9,7 +9,7 @@ use Ramsey\Uuid\Uuid;
 
 class V1
 {
-    private $baseUrl = 'https://gpt.pawan.krd/';
+    private $baseUrl = 'https://bypass.duti.tech/api';
 
     private $accounts = [];
 
@@ -117,7 +117,7 @@ class V1
         // 如果会话ID不为空，但是父消息ID为空，则尝试从ChatGPT获取历史记录
         if ($conversationId !== null && $parentId === null) {
             try {
-                $response = $this->http->get('backend-api/conversation/'.$conversationId, [
+                $response = $this->http->get('/conversation/'.$conversationId, [
                     'headers' => [
                         'Authorization' => $token,
                         'Content-Type' => 'application/json',
@@ -156,7 +156,7 @@ class V1
 
         try {
             $response = $this->http->post(
-                'backend-api/conversation',
+                '/conversation',
                 [
                     'json' => $data,
                     'headers' => [
@@ -253,7 +253,7 @@ class V1
         }
 
         try {
-            $response = $this->http->get('backend-api/conversations', [
+            $response = $this->http->get('/conversations', [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
@@ -296,7 +296,7 @@ class V1
         }
 
         try {
-            $response = $this->http->get('backend-api/conversation/'.$conversationId, [
+            $response = $this->http->get('/conversation/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
@@ -332,7 +332,7 @@ class V1
         }
 
         try {
-            $response = $this->http->post('backend-api/conversation/gen_title/'.$conversationId, [
+            $response = $this->http->post('/conversation/gen_title/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
@@ -376,7 +376,7 @@ class V1
         }
 
         try {
-            $response = $this->http->patch('backend-api/conversation/'.$conversationId, [
+            $response = $this->http->patch('/conversation/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
@@ -418,7 +418,7 @@ class V1
         }
 
         try {
-            $response = $this->http->patch('backend-api/conversation/'.$conversationId, [
+            $response = $this->http->patch('/conversation/'.$conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
@@ -459,7 +459,7 @@ class V1
         }
 
         try {
-            $response = $this->http->patch('backend-api/conversations', [
+            $response = $this->http->patch('/conversations', [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
