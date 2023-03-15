@@ -33,19 +33,22 @@ class V1
      * @param  string  $accessToken
      * @param  mixed  $name
      * @param  bool  $paid
+     * @param  string|null  $model
      * @return void
      */
-    public function addAccount(string $accessToken, $name = null, bool $paid = false): void
+    public function addAccount(string $accessToken, $name = null, bool $paid = false, string $model = null): void
     {
         if ($name === null) {
             $this->accounts[] = [
                 'access_token' => $accessToken,
                 'paid' => $paid,
+                'model' => $model,
             ];
         } else {
             $this->accounts[$name] = [
                 'access_token' => $accessToken,
                 'paid' => $paid,
+                'model' => $model,
             ];
         }
     }
@@ -146,12 +149,13 @@ class V1
                 [
                     'id' => (string) Uuid::uuid4(),
                     'role' => 'user',
+                    'author' => ['role' => 'user'],
                     'content' => ['content_type' => 'text', 'parts' => [$prompt]],
                 ],
             ],
             'conversation_id' => $conversationId,
             'parent_message_id' => $parentId,
-            'model' => $this->accounts[$account]['paid'] ? 'text-davinci-002-render-paid' : 'text-davinci-002-render-sha',
+            'model' => empty($this->accounts[$account]['model']) ? $this->accounts[$account]['paid'] ? 'text-davinci-002-render-paid' : 'text-davinci-002-render-sha' : $this->accounts[$account]['model'],
         ];
 
         try {
@@ -197,7 +201,7 @@ class V1
 
             $line = $this->formatStreamMessage($line);
 
-            if (! $this->checkFields($line)) {
+            if (!$this->checkFields($line)) {
                 if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                     throw new Exception("Rate limit exceeded");
                 }
@@ -273,7 +277,7 @@ class V1
             throw new Exception('Response is not json');
         }
 
-        if (! isset($data['items'])) {
+        if (!isset($data['items'])) {
             throw new Exception('Field missing');
         }
 

@@ -13,15 +13,17 @@ Reconstruct from @acheong08's [ChatGPT](https://github.com/acheong08/ChatGPT)
 `composer require haozi-team/chatgpt-php`
 
 # V1 Web ChatGPT
-## Notice: apps.openai.com is closed in 2023-03-09, Now use Pawan's bypass server, May be slow and unstable. Suggest to use V2 Official ChatGPT.
+## Notice: As of 2023/03/15 - OpenAI has deactivated some accounts using V1. We recommend using V2 to avoid getting banned.
 
 > Uses `chat.openai.com`
 > - Free
 > - Rate limited
 > - Needs Bypassing Cloudflare
 
-> Default api endpoint is `https://gpt.pawan.krd/`
->
+> Default api endpoint is `https://bypass.duti.tech/`
+> 
+> Rate limit at 5 requests / 10 seconds due to small server
+> 
 > OpenAI rate limit: 50 requests per hour on free accounts. You can get around it with multi-account cycling
 >
 > Plus accounts has around 150 requests per hour rate limit
@@ -76,7 +78,7 @@ You can pass "baseUrl" to the first parameter to set a custom API endpoint.
 <?php
 use HaoZiTeam\ChatGPT\V1 as ChatGPTV1;
 
-$chatGPT = new ChatGPTV1('https://chat.openai.com/backend-');
+$chatGPT = new ChatGPTV1('https://chat.openai.com/backend-api/');
 ```
 
 More refer to the [wiki](https://github.com/HaoZi-Team/ChatGPT-PHP/wiki/V1-Advanced-examples) for advanced developer
