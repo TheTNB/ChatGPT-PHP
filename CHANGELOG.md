@@ -2,6 +2,10 @@
 
 All notable changes to `chatgpt-php` will be documented in this file.
 
+## 1.7.0 - 2023-03-10
+
+Update new V1 api endpoint.
+
 ## 1.6.2 - 2023-03-09
 
 Fix errors
