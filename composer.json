@@ -9,8 +9,8 @@
   "type": "library",
   "require": {
     "php": ">=7.4",
-    "guzzlehttp/guzzle": "^7.2.0",
-    "ramsey/uuid": "4.2.3"
+    "guzzlehttp/guzzle": "^7.2",
+    "ramsey/uuid": "^4.2"
   },
   "require-dev": {
     "pestphp/pest": "^1.22"
@@ -40,6 +40,9 @@
   "config": {
     "allow-plugins": {
       "pestphp/pest-plugin": true
+    },
+    "platform": {
+      "php": "7.4"
     }
   },
   "prefer-stable": true
