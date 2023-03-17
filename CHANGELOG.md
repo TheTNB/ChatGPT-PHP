@@ -2,6 +2,10 @@
 
 All notable changes to `chatgpt-php` will be documented in this file.
 
+## 1.7.1 - 2023-03-15
+
+V1 support GPT-4 now.
+
 ## 1.7.0 - 2023-03-10
 
 Update new V1 api endpoint.
