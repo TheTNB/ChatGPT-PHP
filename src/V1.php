@@ -5,11 +5,13 @@ namespace HaoZiTeam\ChatGPT;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7;
 use Ramsey\Uuid\Uuid;
 
 class V1
 {
-    private $baseUrl = 'https://bypass.duti.tech/api/';
+    private $baseUrl = 'https://bypass.churchless.tech/api/';
 
     private $accounts = [];
 
@@ -176,8 +178,12 @@ class V1
                     'stream' => true,
                 ]
             );
-        } catch (GuzzleException $e) {
-            throw new Exception($e->getMessage());
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                throw new Exception(Psr7\Message::toString($e->getResponse()));
+            } else {
+                throw new Exception($e->getMessage());
+            }
         }
 
         // 如果是数据流模式，则直接返回数据流
@@ -201,7 +207,7 @@ class V1
 
             $line = $this->formatStreamMessage($line);
 
-            if (! $this->checkFields($line)) {
+            if (!$this->checkFields($line)) {
                 if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                     throw new Exception("Rate limit exceeded");
                 }
@@ -277,7 +283,7 @@ class V1
             throw new Exception('Response is not json');
         }
 
-        if (! isset($data['items'])) {
+        if (!isset($data['items'])) {
             throw new Exception('Field missing');
         }
 
