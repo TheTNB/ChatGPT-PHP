@@ -8,7 +8,7 @@ $chatGPT->addAccount($accessToken);
 $test = $chatGPT->ask('Hello');
 foreach ($test as $answer) {
     $conversationId = $answer['conversation_id'];
-    $parentId = $answer['parent_id'];
+    $parentId = $answer['id'];
 }
 
 it('should get a new conversation', function () use ($chatGPT) {
