@@ -128,8 +128,10 @@ $chatGPT->addMessage('You are ChatGPT, a large language model trained by OpenAI.
 $chatGPT->addMessage('Hello, how are you?', 'user');
 $chatGPT->addMessage('I am fine, thank you.', 'assistant');
 
-$answer = $chatGPT->ask('What did I ask you before?');
-print_r($answer);
+$answers = $chatGPT->ask('What did I ask you before?');
+foreach ($answers as $item) {
+    print_r($item);
+}
 //Array(
 //    'answer' => 'Hello, how are you?',
 //    'id' => 'cmpl-xxxxx',
