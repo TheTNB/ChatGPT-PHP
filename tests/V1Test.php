@@ -11,7 +11,9 @@ $parentId = $test['parent_id'];
 
 it('should get a new conversation', function () use ($chatGPT) {
     $return = $chatGPT->ask('Hello');
-    $this->assertArrayHasKey('answer', $return);
+    foreach ($return as $answer) {
+        $this->assertArrayHasKey('answer', $answer);
+    }
 })->group('working');
 
 it('should get a conversations array', function () use ($chatGPT) {

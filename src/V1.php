@@ -88,7 +88,7 @@ class V1
      * @param  mixed  $account
      * @param  bool  $stream
      *
-     * @return array|Generator
+     * @return Generator
      * @throws Exception|GuzzleException
      */
     public function ask(
@@ -97,7 +97,7 @@ class V1
         string $parentId = null,
         $account = null,
         bool $stream = false
-    ) {
+    ): Generator {
         // 如果账号为空，则随机选择一个账号
         if ($account === null) {
             $account = array_rand($this->accounts);
@@ -200,9 +200,9 @@ class V1
 
         // 流模式下，返回一个生成器
         if ($stream) {
-            $answer = $response->getBody();
-            while (! $answer->eof()) {
-                $raw = Psr7\Utils::readLine($answer);
+            $data = $response->getBody();
+            while (!$data->eof()) {
+                $raw = Psr7\Utils::readLine($data);
                 $line = self::formatStreamMessage($raw);
                 if (self::checkFields($line)) {
                     $answer = $line['message']['content']['parts'][0];
@@ -232,7 +232,7 @@ class V1
 
                 $line = $this->formatStreamMessage($line);
 
-                if (! $this->checkFields($line)) {
+                if (!$this->checkFields($line)) {
                     if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                         throw new Exception("Rate limit exceeded");
                     }
@@ -262,7 +262,7 @@ class V1
                 $model = $line["message"]["metadata"]["model_slug"] ?? null;
             }
 
-            return [
+            yield [
                 'answer' => $answer,
                 'conversation_id' => $conversationId,
                 'parent_id' => $parentId,
@@ -311,7 +311,7 @@ class V1
             throw new Exception('Response is not json');
         }
 
-        if (! isset($data['items'])) {
+        if (!isset($data['items'])) {
             throw new Exception('Field missing');
         }
 

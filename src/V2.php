@@ -77,10 +77,10 @@ class V2
      * @param  string|null  $user
      * @param  bool  $stream
      *
-     * @return array|Generator
+     * @return Generator
      * @throws Exception|GuzzleException
      */
-    public function ask(string $prompt, string $user = null, bool $stream = false)
+    public function ask(string $prompt, string $user = null, bool $stream = false): Generator
     {
         // 将消息添加到消息列表中
         $this->addMessage($prompt);
@@ -114,11 +114,13 @@ class V2
             }
         }
 
+        $answer = '';
+
         // 流模式下，返回一个生成器
         if ($stream) {
-            $answer = $response->getBody();
-            while (! $answer->eof()) {
-                $raw = Psr7\Utils::readLine($answer);
+            $data = $response->getBody();
+            while (!$data->eof()) {
+                $raw = Psr7\Utils::readLine($data);
                 $line = self::formatStreamMessage($raw);
                 if (self::checkStreamFields($line)) {
                     $answer = $line['choices'][0]['delta']['content'];
@@ -131,22 +133,22 @@ class V2
                     ];
                 }
                 unset($raw, $line);
-                $this->addMessage($answer, 'assistant');
             }
+            $this->addMessage($answer, 'assistant');
         } else {
             $data = json_decode($response->getBody()->getContents(), true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new Exception('Response is not json');
             }
 
-            if (! $this->checkFields($data)) {
+            if (!$this->checkFields($data)) {
                 throw new Exception('Field missing');
             }
 
             $answer = $data['choices'][0]['message']['content'];
             $this->addMessage($answer, 'assistant');
 
-            return [
+            yield [
                 'answer' => $answer,
                 'id' => $data['id'],
                 'model' => $this->model,
