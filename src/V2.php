@@ -117,7 +117,7 @@ class V2
         // 流模式下，返回一个生成器
         if ($stream) {
             $answer = $response->getBody();
-            while (!$answer->eof()) {
+            while (! $answer->eof()) {
                 $raw = Psr7\Utils::readLine($answer);
                 $line = self::formatStreamMessage($raw);
                 if (self::checkStreamFields($line)) {
@@ -139,7 +139,7 @@ class V2
                 throw new Exception('Response is not json');
             }
 
-            if (!$this->checkFields($data)) {
+            if (! $this->checkFields($data)) {
                 throw new Exception('Field missing');
             }
 
