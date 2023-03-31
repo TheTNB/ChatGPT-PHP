@@ -19,6 +19,8 @@ it('should get a new conversation', function () use ($chatGPT) {
 it('should get a answer contact the context', function () use ($chatGPT) {
     $chatGPT->ask('Hello, how are you?');
     $return = $chatGPT->ask('What did I ask you just now?');
-    $this->assertArrayHasKey('answer', $return);
-    $this->assertStringContainsString('Hello, how are you?', $return['answer']);
+    foreach ($return as $answer) {
+        $this->assertArrayHasKey('answer', $answer);
+        $this->assertStringContainsString('Hello, how are you?', $answer['answer']);
+    }
 })->group('working');
