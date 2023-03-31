@@ -201,7 +201,7 @@ class V1
         // 流模式下，返回一个生成器
         if ($stream) {
             $data = $response->getBody();
-            while (!$data->eof()) {
+            while (! $data->eof()) {
                 $raw = Psr7\Utils::readLine($data);
                 $line = self::formatStreamMessage($raw);
                 if (self::checkFields($line)) {
@@ -232,7 +232,7 @@ class V1
 
                 $line = $this->formatStreamMessage($line);
 
-                if (!$this->checkFields($line)) {
+                if (! $this->checkFields($line)) {
                     if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                         throw new Exception("Rate limit exceeded");
                     }
@@ -311,7 +311,7 @@ class V1
             throw new Exception('Response is not json');
         }
 
-        if (!isset($data['items'])) {
+        if (! isset($data['items'])) {
             throw new Exception('Field missing');
         }
 
