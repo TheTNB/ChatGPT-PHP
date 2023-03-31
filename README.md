@@ -20,7 +20,7 @@ Reconstruct from @acheong08's [ChatGPT](https://github.com/acheong08/ChatGPT)
 > - Rate limited
 > - Needs Bypassing Cloudflare
 
-> Default api endpoint is `https://bypass.duti.tech/`
+> Default api endpoint is `https://bypass.churchless.tech/`
 > 
 > Rate limit at 5 requests / 10 seconds due to small server
 > 
@@ -151,8 +151,10 @@ use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
 $chatGPT = new ChatGPTV2('sk-<your_api_key>');
 $chatGPT->addMessage('You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.', 'system');
 
-$answer = $chatGPT->ask('Hello, how are you?', null, true);
-// GuzzleHttp StreamInterface
+$answers = $chatGPT->ask('Hello, how are you?', null, true);// A Generator
+foreach ($answers as $item) {
+    print_r($item);
+}
 ```
 
 # Disclaimers
