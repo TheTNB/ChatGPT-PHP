@@ -59,8 +59,10 @@ use HaoZiTeam\ChatGPT\V1 as ChatGPTV1;
 $chatGPT = new ChatGPTV1();
 $chatGPT->addAccount('<your_access_token>');
 
-$answer = $chatGPT->ask('Hello, how are you?');
-print_r($answer);
+$answers = $chatGPT->ask('Hello, how are you?');
+foreach ($answers as $item) {
+    print_r($item);
+}
 //Array(
 //    'answer' => 'I am fine, thank you.',
 //    'conversation_id' => '<uuid>',
@@ -102,8 +104,10 @@ use HaoZiTeam\ChatGPT\V2 as ChatGPTV2;
 $chatGPT = new ChatGPTV2('sk-<your_api_key>');
 $chatGPT->addMessage('You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.', 'system');
 
-$answer = $chatGPT->ask('Hello, how are you?');
-print_r($answer);
+$answers = $chatGPT->ask('Hello, how are you?');
+foreach ($answers as $item) {
+    print_r($item);
+}
 ```
 
 ### Advanced example
