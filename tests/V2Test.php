@@ -4,8 +4,10 @@ use HaoZiTeam\ChatGPT\V2;
 
 $secretKey = getenv('OPENAI_SECRET_KEY');
 $chatGPT = new V2($secretKey);
-$chatGPT->addMessage('You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.',
-    'system');
+$chatGPT->addMessage(
+    'You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.',
+    'system'
+);
 
 it('should get a new conversation', function () use ($chatGPT) {
     $return = $chatGPT->ask('Hello, how are you?');
