@@ -2,6 +2,10 @@
 
 All notable changes to `chatgpt-php` will be documented in this file.
 
+## 2.0.0 - 2023-03-31
+
+1. Update stream mode return.
+
 ## 1.8.0 - 2023-03-26
 
 Update V1 API and change error thrown.
