@@ -2,6 +2,10 @@
 
 All notable changes to `chatgpt-php` will be documented in this file.
 
+## 2.0.4 - 2023-04-25
+
+1. Update V1 API
+
 ## 2.0.3 - 2023-03-31
 
 1. Sync V1 V2 return.
