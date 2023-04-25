@@ -13,14 +13,13 @@ Reconstruct from @acheong08's [ChatGPT](https://github.com/acheong08/ChatGPT)
 `composer require haozi-team/chatgpt-php`
 
 # V1 Web ChatGPT
-## Notice: As of 2023/03/15 - OpenAI has deactivated some accounts using V1. We recommend using V2 to avoid getting banned.
 
 > Uses `chat.openai.com`
 > - Free
 > - Rate limited
 > - Needs Bypassing Cloudflare
 
-> Default api endpoint is `https://bypass.churchless.tech/`
+> Default api endpoint is `https://ai.fakeopen.com/api/` by @pengzhile
 > 
 > Rate limit at 5 requests / 10 seconds due to small server
 > 
