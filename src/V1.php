@@ -12,7 +12,7 @@ use Ramsey\Uuid\Uuid;
 
 class V1
 {
-    private $baseUrl = 'https://bypass.churchless.tech/api/';
+    private $baseUrl = 'https://ai.fakeopen.com/api/';
 
     private $accounts = [];
 
