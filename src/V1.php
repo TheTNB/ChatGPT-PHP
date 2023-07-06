@@ -859,7 +859,7 @@ class V1
         }
 
         try {
-            $response = $this->http->get('aip/models', [
+            $response = $this->http->get('models', [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
