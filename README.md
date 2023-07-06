@@ -21,11 +21,11 @@ Reconstruct from @acheong08's [ChatGPT](https://github.com/acheong08/ChatGPT)
 
 > Default api endpoint is `https://ai.fakeopen.com/api/` by @pengzhile
 > 
-> Rate limit at 5 requests / 10 seconds due to small server
-> 
 > OpenAI rate limit: 50 requests per hour on free accounts. You can get around it with multi-account cycling
->
+> 
 > Plus accounts has around 150 requests per hour rate limit
+> 
+> GPT-4: If you use GPT-4, you must provide arkose_token, usually the SDK can get it automatically through @pengzhile's API.
 
 ## Configuration
 

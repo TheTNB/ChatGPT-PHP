@@ -41,20 +41,31 @@ class V1
      *
      * @return void
      */
-    public function addAccount(string $accessToken, $name = null, bool $paid = false, string $model = null): void
+    public function addAccount(string $accessToken, $name = null, string $model = null, bool $historyAndTrainingDisabled = false, string $arkoseToken = null): void
     {
         if ($name === null) {
             $this->accounts[] = [
                 'access_token' => $accessToken,
-                'paid' => $paid,
                 'model' => $model,
+                'history_and_training_disabled' => $historyAndTrainingDisabled,
+                'arkose_token' => $arkoseToken,
             ];
         } else {
             $this->accounts[$name] = [
                 'access_token' => $accessToken,
-                'paid' => $paid,
                 'model' => $model,
+                'history_and_training_disabled' => $historyAndTrainingDisabled,
+                'arkose_token' => $arkoseToken,
             ];
+        }
+
+        // GPT-4模型Arkose Token必须设置
+        if (substr($this->accounts[$account]['model'], 0, 5) === 'gpt-4' && $arkoseToken === null) {
+            try {
+                $this->accounts[$account]['arkose_token'] = $this->getArkoseToken();
+            } catch (Exception $e) {
+                $this->accounts[$account]['arkose_token'] = '';
+            }
         }
     }
 
@@ -165,6 +176,8 @@ class V1
             'conversation_id' => $conversationId,
             'parent_message_id' => $parentId,
             'model' => empty($this->accounts[$account]['model']) ? $this->accounts[$account]['paid'] ? 'text-davinci-002-render-paid' : 'text-davinci-002-render-sha' : $this->accounts[$account]['model'],
+            'arkose_token' => $this->accounts[$account]['arkose_token'],
+            'history_and_training_disabled' => $this->accounts[$account]['history_and_training_disabled'],
         ];
 
         try {
@@ -209,6 +222,10 @@ class V1
                     $conversationId = $line['conversation_id'] ?? null;
                     $messageId = $line['message']['id'] ?? null;
                     $model = $line["message"]["metadata"]["model_slug"] ?? null;
+                    $finish_details = $line["message"]["metadata"]["finish_details"]['type'] ?? null;
+                    $end_turn = $line["message"]["end_turn"] ?? true;
+                    $recipient = $line["message"]["recipient"] ?? "all";
+                    $citations = $line["message"]["metadata"]["citations"] ?? [];
 
                     yield [
                         "answer" => $answer,
@@ -216,6 +233,10 @@ class V1
                         'conversation_id' => $conversationId,
                         "model" => $model,
                         "account" => $account,
+                        'finish_details' => $finish_details,
+                        'end_turn' => $end_turn,
+                        'recipient' => $recipient,
+                        'citations' => $citations,
                     ];
                 }
                 unset($raw, $line);
@@ -260,6 +281,10 @@ class V1
                 $conversationId = $line['conversation_id'] ?? null;
                 $messageId = $line['message']['id'] ?? null;
                 $model = $line["message"]["metadata"]["model_slug"] ?? null;
+                $finish_details = $line["message"]["metadata"]["finish_details"]['type'] ?? null;
+                $end_turn = $line["message"]["end_turn"] ?? true;
+                $recipient = $line["message"]["recipient"] ?? "all";
+                $citations = $line["message"]["metadata"]["citations"] ?? [];
             }
 
             yield [
@@ -268,6 +293,172 @@ class V1
                 'conversation_id' => $conversationId,
                 'model' => $model,
                 'account' => $account,
+                'finish_details' => $finish_details,
+                'end_turn' => $end_turn,
+                'recipient' => $recipient,
+                'citations' => $citations,
+            ];
+        }
+    }
+
+    /**
+     * 续写
+     *
+     * @param  string|null  $conversationId
+     * @param  string|null  $parentId
+     * @param  mixed  $account
+     * @param  bool  $stream
+     *
+     * @return Generator
+     * @throws Exception|GuzzleException
+     */
+    public function continueWrite(
+        string $prompt,
+        string $conversationId = null,
+        string $parentId = null,
+        $account = null,
+        bool $stream = false
+    ): Generator {
+        if ($account === null) {
+            throw new Exception("Continue write must set account");
+        } else {
+            $token = isset($this->accounts[$account]['access_token']) ? $this->accessTokenToJWT($this->accounts[$account]['access_token']) : null;
+        }
+
+        if ($token === null) {
+            throw new Exception("No account available");
+        }
+
+        if ($parentId == null || $conversationId === null) {
+            throw new Exception("Continue write must set conversationId and parentId");
+        }
+
+        $data = [
+            'action' => 'continue',
+            'conversation_id' => $conversationId,
+            'parent_message_id' => $parentId,
+            'model' => empty($this->accounts[$account]['model']) ? 'text-davinci-002-render-sha' : $this->accounts[$account]['model'],
+            'arkose_token' => $this->accounts[$account]['arkose_token'],
+            'history_and_training_disabled' => $this->accounts[$account]['history_and_training_disabled'],
+        ];
+
+        try {
+            $response = $this->http->post(
+                'conversation',
+                [
+                    'json' => $data,
+                    'headers' => [
+                        'Authorization' => $token,
+                        'Accept' => 'text/event-stream',
+                        'Content-Type' => 'application/json',
+                        'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                        'X-Openai-Assistant-App-Id' => '',
+                        'Connection' => 'close',
+                        'Accept-Language' => 'en-US,en;q=0.9',
+                        'Referer' => 'https://chat.openai.com/chat',
+                    ],
+                    'stream' => true,
+                ]
+            );
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                throw new Exception(Psr7\Message::toString($e->getResponse()));
+            } else {
+                throw new Exception($e->getMessage());
+            }
+        }
+
+        $answer = '';
+        $conversationId = '';
+        $messageId = '';
+        $model = '';
+
+        // 流模式下，返回一个生成器
+        if ($stream) {
+            $data = $response->getBody();
+            while (! $data->eof()) {
+                $raw = Psr7\Utils::readLine($data);
+                $line = self::formatStreamMessage($raw);
+                if (self::checkFields($line)) {
+                    $answer = $line['message']['content']['parts'][0];
+                    $conversationId = $line['conversation_id'] ?? null;
+                    $messageId = $line['message']['id'] ?? null;
+                    $model = $line["message"]["metadata"]["model_slug"] ?? null;
+                    $finish_details = $line["message"]["metadata"]["finish_details"]['type'] ?? null;
+                    $end_turn = $line["message"]["end_turn"] ?? true;
+                    $recipient = $line["message"]["recipient"] ?? "all";
+                    $citations = $line["message"]["metadata"]["citations"] ?? [];
+
+                    yield [
+                        "answer" => $answer,
+                        "id" => $messageId,
+                        'conversation_id' => $conversationId,
+                        "model" => $model,
+                        "account" => $account,
+                        'finish_details' => $finish_details,
+                        'end_turn' => $end_turn,
+                        'recipient' => $recipient,
+                        'citations' => $citations,
+                    ];
+                }
+                unset($raw, $line);
+            }
+        } else {
+            foreach (explode("\n", $response->getBody()) as $line) {
+                $line = trim($line);
+                if ($line === 'Internal Server Error') {
+                    throw new Exception($line);
+                }
+                if ($line === '') {
+                    continue;
+                }
+
+                $line = $this->formatStreamMessage($line);
+
+                if (! $this->checkFields($line)) {
+                    if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
+                        throw new Exception("Rate limit exceeded");
+                    }
+                    if (isset($line["detail"]) && $line["detail"] === "Conversation not found") {
+                        throw new Exception("Conversation not found");
+                    }
+                    if (isset($line["detail"]) && $line["detail"] === "Something went wrong, please try reloading the conversation.") {
+                        throw new Exception("Something went wrong, please try reloading the conversation.");
+                    }
+                    if (isset($line["detail"]) && $line["detail"] === "invalid_api_key") {
+                        throw new Exception("Invalid access token");
+                    }
+                    if (isset($line["detail"]) && $line["detail"] === "invalid_token") {
+                        throw new Exception("Invalid access token");
+                    }
+
+                    continue;
+                }
+
+                if ($line['message']['content']['parts'][0] === $prompt) {
+                    continue;
+                }
+
+                $answer = $line['message']['content']['parts'][0];
+                $conversationId = $line['conversation_id'] ?? null;
+                $messageId = $line['message']['id'] ?? null;
+                $model = $line["message"]["metadata"]["model_slug"] ?? null;
+                $finish_details = $line["message"]["metadata"]["finish_details"]['type'] ?? null;
+                $end_turn = $line["message"]["end_turn"] ?? true;
+                $recipient = $line["message"]["recipient"] ?? "all";
+                $citations = $line["message"]["metadata"]["citations"] ?? [];
+            }
+
+            yield [
+                'answer' => $answer,
+                'id' => $messageId,
+                'conversation_id' => $conversationId,
+                'model' => $model,
+                'account' => $account,
+                'finish_details' => $finish_details,
+                'end_turn' => $end_turn,
+                'recipient' => $recipient,
+                'citations' => $citations,
             ];
         }
     }
@@ -534,6 +725,114 @@ class V1
     }
 
     /**
+     * 获取插件列表
+     * 
+     * @param  int  $offset
+     * @param  int  $limit
+     * @param  string  $status
+     * 
+     * @return array
+     */
+    public function getPlugins(int $offset = 0, int $limit = 250, string $status = 'approved'): array
+    {
+        try {
+            $response = $this->http->get('aip/p', [
+                'query' => [
+                    'offset' => $offset,
+                    'limit' => $limit,
+                    'status' => $status,
+                ],
+            ])->getBody()->getContents();
+        } catch (GuzzleException $e) {
+            return [];
+        }
+
+        $data = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return [];
+        }
+
+        return $data;
+    }
+
+    /**
+     * 安装插件
+     * 
+     * @param  string  $pluginId
+     * 
+     * @return bool
+     */
+    public function installPlugin(string $pluginId): bool
+    {
+        try {
+            $response = $this->http->patch('aip/p/'.$pluginId.'/user-settings')->getBody()->getContents();
+        } catch (GuzzleException $e) {
+            return false;
+        }
+
+        $data = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 获取未验证插件
+     * 
+     * @param  string  $domain
+     * 
+     * @return array
+     */
+    public function getUnverifiedPlugins(string $domain = ''): array
+    {
+        try {
+            $response = $this->http->get('aip/p/domain', [
+                'query' => [
+                    'domain' => $domain,
+                ],
+            ])->getBody()->getContents();
+        } catch (GuzzleException $e) {
+            return [];
+        }
+
+        $data = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return [];
+        }
+
+        return $data;
+    }
+
+    /**
+     * 设置保存聊天记录与训练
+     * 
+     * @param  bool  $save
+     * 
+     * @return bool
+     */
+    public function setChatHistoryAndTraining(bool $save): bool
+    {
+        try {
+            $response = $this->http->get('aip/models', [
+                'query' => [
+                    'history_and_training_disabled' => !$save,
+                ],
+            ])->getBody()->getContents();
+        } catch (GuzzleException $e) {
+            return false;
+        }
+
+        $data = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * 检查响应行是否包含必要的字段
      *
      * @param  mixed  $line
@@ -597,5 +896,35 @@ class V1
         }
 
         return 'Bearer '.$accessToken;
+    }
+
+    /**
+     * 获取arkose_token
+     * 
+     * @return string
+     * @throws Exception
+     */
+    public function getArkoseToken(): string
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://ai.fakeopen.com/api/arkose/token');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        if($response === false){
+            throw new Exception('Request arkose token failed');
+        }
+
+        $data = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Request arkose response is not json');
+        }
+
+        if (!isset($data['token'])) {
+            throw new Exception('Request arkose token failed');
+        }
+
+        return $data['token'];
     }
 }
