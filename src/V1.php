@@ -60,11 +60,11 @@ class V1
         }
 
         // GPT-4模型Arkose Token必须设置
-        if (substr($this->accounts[$account]['model'], 0, 5) === 'gpt-4' && $arkoseToken === null) {
+        if (substr($this->accounts[$name]['model'], 0, 5) === 'gpt-4' && $arkoseToken === null) {
             try {
-                $this->accounts[$account]['arkose_token'] = $this->getArkoseToken();
+                $this->accounts[$name]['arkose_token'] = $this->getArkoseToken();
             } catch (Exception $e) {
-                $this->accounts[$account]['arkose_token'] = '';
+                $this->accounts[$name]['arkose_token'] = '';
             }
         }
     }
