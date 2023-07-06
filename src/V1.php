@@ -730,13 +730,25 @@ class V1
      * @param  int  $offset
      * @param  int  $limit
      * @param  string  $status
+     * @param  mixed  $account
      *
      * @return array
      */
-    public function getPlugins(int $offset = 0, int $limit = 250, string $status = 'approved'): array
+    public function getPlugins(int $offset = 0, int $limit = 250, string $status = 'approved', $account = 0): array
     {
         try {
+            $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
+        } catch (Exception $e) {
+            throw new Exception("Invalid account");
+        }
+
+        try {
             $response = $this->http->get('aip/p', [
+                'headers' => [
+                    'Authorization' => $token,
+                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                    'Referer' => 'https://chat.openai.com/chat',
+                ],
                 'query' => [
                     'offset' => $offset,
                     'limit' => $limit,
@@ -759,13 +771,26 @@ class V1
      * 安装插件
      *
      * @param  string  $pluginId
+     * @param  mixed  $account
      *
      * @return bool
      */
-    public function installPlugin(string $pluginId): bool
+    public function installPlugin(string $pluginId, $account = 0): bool
     {
         try {
-            $response = $this->http->patch('aip/p/'.$pluginId.'/user-settings')->getBody()->getContents();
+            $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
+        } catch (Exception $e) {
+            throw new Exception("Invalid account");
+        }
+
+        try {
+            $response = $this->http->patch('aip/p/'.$pluginId.'/user-settings', [
+                'headers' => [
+                    'Authorization' => $token,
+                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                    'Referer' => 'https://chat.openai.com/chat',
+                ],
+            ])->getBody()->getContents();
         } catch (GuzzleException $e) {
             return false;
         }
@@ -782,13 +807,25 @@ class V1
      * 获取未验证插件
      *
      * @param  string  $domain
+     * @param  mixed  $account
      *
      * @return array
      */
-    public function getUnverifiedPlugins(string $domain = ''): array
+    public function getUnverifiedPlugins(string $domain = '', $account = 0): array
     {
         try {
+            $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
+        } catch (Exception $e) {
+            throw new Exception("Invalid account");
+        }
+
+        try {
             $response = $this->http->get('aip/p/domain', [
+                'headers' => [
+                    'Authorization' => $token,
+                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                    'Referer' => 'https://chat.openai.com/chat',
+                ],
                 'query' => [
                     'domain' => $domain,
                 ],
@@ -809,13 +846,25 @@ class V1
      * 设置保存聊天记录与训练
      *
      * @param  bool  $save
+     * @param  mixed  $account
      *
      * @return bool
      */
-    public function setChatHistoryAndTraining(bool $save): bool
+    public function setChatHistoryAndTraining(bool $save, $account = 0): bool
     {
         try {
+            $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
+        } catch (Exception $e) {
+            throw new Exception("Invalid account");
+        }
+
+        try {
             $response = $this->http->get('aip/models', [
+                'headers' => [
+                    'Authorization' => $token,
+                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
+                    'Referer' => 'https://chat.openai.com/chat',
+                ],
                 'query' => [
                     'history_and_training_disabled' => ! $save,
                 ],

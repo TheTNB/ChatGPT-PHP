@@ -52,3 +52,8 @@ it('should return plugins list', function () use ($chatGPT) {
     $return = $chatGPT->getPlugins();
     $this->assertIsArray($return);
 })->group('working');
+
+it('should change history and training status', function () use ($chatGPT) {
+    $return = $chatGPT->setChatHistoryAndTraining(true);
+    $this->assertTrue($return);
+})->group('working');
