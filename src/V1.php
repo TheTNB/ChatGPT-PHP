@@ -726,11 +726,11 @@ class V1
 
     /**
      * 获取插件列表
-     * 
+     *
      * @param  int  $offset
      * @param  int  $limit
      * @param  string  $status
-     * 
+     *
      * @return array
      */
     public function getPlugins(int $offset = 0, int $limit = 250, string $status = 'approved'): array
@@ -757,9 +757,9 @@ class V1
 
     /**
      * 安装插件
-     * 
+     *
      * @param  string  $pluginId
-     * 
+     *
      * @return bool
      */
     public function installPlugin(string $pluginId): bool
@@ -780,9 +780,9 @@ class V1
 
     /**
      * 获取未验证插件
-     * 
+     *
      * @param  string  $domain
-     * 
+     *
      * @return array
      */
     public function getUnverifiedPlugins(string $domain = ''): array
@@ -807,9 +807,9 @@ class V1
 
     /**
      * 设置保存聊天记录与训练
-     * 
+     *
      * @param  bool  $save
-     * 
+     *
      * @return bool
      */
     public function setChatHistoryAndTraining(bool $save): bool
@@ -817,7 +817,7 @@ class V1
         try {
             $response = $this->http->get('aip/models', [
                 'query' => [
-                    'history_and_training_disabled' => !$save,
+                    'history_and_training_disabled' => ! $save,
                 ],
             ])->getBody()->getContents();
         } catch (GuzzleException $e) {
@@ -900,7 +900,7 @@ class V1
 
     /**
      * 获取arkose_token
-     * 
+     *
      * @return string
      * @throws Exception
      */
@@ -912,7 +912,7 @@ class V1
         $response = curl_exec($ch);
         curl_close($ch);
 
-        if($response === false){
+        if($response === false) {
             throw new Exception('Request arkose token failed');
         }
 
@@ -921,7 +921,7 @@ class V1
             throw new Exception('Request arkose response is not json');
         }
 
-        if (!isset($data['token'])) {
+        if (! isset($data['token'])) {
             throw new Exception('Request arkose token failed');
         }
 
