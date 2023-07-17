@@ -2,6 +2,10 @@
 
 All notable changes to `chatgpt-php` will be documented in this file.
 
+## 2.1.1 - 2023-07-17
+
+1. fix name undefined.
+
 ## 2.1.0 - 2023-07-06
 
 1. **Deprecated: `paid` parameter in `addAccount` method.**
