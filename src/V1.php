@@ -34,14 +34,14 @@ class V1
     /**
      * 设置账号
      *
-     * @param  string  $accessToken
-     * @param  mixed  $name
-     * @param  bool  $paid
-     * @param  string|null  $model
-     *
+     * @param string $accessToken
+     * @param mixed $name
+     * @param string $model
+     * @param bool $historyAndTrainingDisabled
+     * @param string|null $arkoseToken
      * @return void
      */
-    public function addAccount(string $accessToken, $name = null, string $model = null, bool $historyAndTrainingDisabled = false, string $arkoseToken = null): void
+    public function addAccount(string $accessToken, $name = null, string $model = 'text-davinci-002-render-sha', bool $historyAndTrainingDisabled = false, string $arkoseToken = null): void
     {
         if ($name === null) {
             $this->accounts[] = [
@@ -77,7 +77,7 @@ class V1
     /**
      * 获取账号
      *
-     * @param  string  $name
+     * @param string $name
      *
      * @return array
      */
@@ -98,11 +98,11 @@ class V1
     /**
      * 发送消息
      *
-     * @param  string  $prompt
-     * @param  string|null  $conversationId
-     * @param  string|null  $parentId
-     * @param  mixed  $account
-     * @param  bool  $stream
+     * @param string $prompt
+     * @param string|null $conversationId
+     * @param string|null $parentId
+     * @param mixed $account
+     * @param bool $stream
      *
      * @return Generator
      * @throws Exception|GuzzleException
@@ -111,9 +111,10 @@ class V1
         string $prompt,
         string $conversationId = null,
         string $parentId = null,
-        $account = null,
-        bool $stream = false
-    ): Generator {
+               $account = null,
+        bool   $stream = false
+    ): Generator
+    {
         // 如果账号为空，则随机选择一个账号
         if ($account === null) {
             $account = array_rand($this->accounts);
@@ -121,7 +122,7 @@ class V1
             try {
                 $token = $this->accessTokenToJWT($this->accounts[$account]['access_token']);
             } catch (Exception $e) {
-                throw new Exception("Account ".$account." is invalid");
+                throw new Exception("Account " . $account . " is invalid");
             }
         } else {
             $token = isset($this->accounts[$account]['access_token']) ? $this->accessTokenToJWT($this->accounts[$account]['access_token']) : null;
@@ -139,13 +140,13 @@ class V1
 
         // 如果会话ID与父消息ID都为空，则开启新的会话
         if ($conversationId === null && $parentId === null) {
-            $parentId = (string) Uuid::uuid4();
+            $parentId = (string)Uuid::uuid4();
         }
 
         // 如果会话ID不为空，但是父消息ID为空，则尝试从ChatGPT获取历史记录
         if ($conversationId !== null && $parentId === null) {
             try {
-                $response = $this->http->get('conversation/'.$conversationId, [
+                $response = $this->http->get('conversation/' . $conversationId, [
                     'headers' => [
                         'Authorization' => $token,
                         'Content-Type' => 'application/json',
@@ -154,7 +155,7 @@ class V1
                     ],
                 ]);
             } catch (GuzzleException $e) {
-                throw new Exception("Request failed: ".$e->getMessage());
+                throw new Exception("Request failed: " . $e->getMessage());
             }
 
             $response = json_decode($response->getBody()->getContents(), true);
@@ -164,7 +165,7 @@ class V1
             } else {
                 // 如果没有获取到父消息ID，则开启新的会话
                 $conversationId = null;
-                $parentId = (string) Uuid::uuid4();
+                $parentId = (string)Uuid::uuid4();
             }
         }
 
@@ -172,7 +173,7 @@ class V1
             'action' => 'next',
             'messages' => [
                 [
-                    'id' => (string) Uuid::uuid4(),
+                    'id' => (string)Uuid::uuid4(),
                     'role' => 'user',
                     'author' => ['role' => 'user'],
                     'content' => ['content_type' => 'text', 'parts' => [$prompt]],
@@ -180,7 +181,7 @@ class V1
             ],
             'conversation_id' => $conversationId,
             'parent_message_id' => $parentId,
-            'model' => empty($this->accounts[$account]['model']) ? $this->accounts[$account]['paid'] ? 'text-davinci-002-render-paid' : 'text-davinci-002-render-sha' : $this->accounts[$account]['model'],
+            'model' => $this->accounts[$account]['model'],
             'arkose_token' => $this->accounts[$account]['arkose_token'],
             'history_and_training_disabled' => $this->accounts[$account]['history_and_training_disabled'],
         ];
@@ -219,7 +220,7 @@ class V1
         // 流模式下，返回一个生成器
         if ($stream) {
             $data = $response->getBody();
-            while (! $data->eof()) {
+            while (!$data->eof()) {
                 $raw = Psr7\Utils::readLine($data);
                 $line = self::formatStreamMessage($raw);
                 if (self::checkFields($line)) {
@@ -258,7 +259,7 @@ class V1
 
                 $line = $this->formatStreamMessage($line);
 
-                if (! $this->checkFields($line)) {
+                if (!$this->checkFields($line)) {
                     if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                         throw new Exception("Rate limit exceeded");
                     }
@@ -309,10 +310,10 @@ class V1
     /**
      * 续写
      *
-     * @param  string|null  $conversationId
-     * @param  string|null  $parentId
-     * @param  mixed  $account
-     * @param  bool  $stream
+     * @param string|null $conversationId
+     * @param string|null $parentId
+     * @param mixed $account
+     * @param bool $stream
      *
      * @return Generator
      * @throws Exception|GuzzleException
@@ -321,9 +322,10 @@ class V1
         string $prompt,
         string $conversationId = null,
         string $parentId = null,
-        $account = null,
-        bool $stream = false
-    ): Generator {
+               $account = null,
+        bool   $stream = false
+    ): Generator
+    {
         if ($account === null) {
             throw new Exception("Continue write must set account");
         } else {
@@ -342,7 +344,7 @@ class V1
             'action' => 'continue',
             'conversation_id' => $conversationId,
             'parent_message_id' => $parentId,
-            'model' => empty($this->accounts[$account]['model']) ? 'text-davinci-002-render-sha' : $this->accounts[$account]['model'],
+            'model' => $this->accounts[$account]['model'],
             'arkose_token' => $this->accounts[$account]['arkose_token'],
             'history_and_training_disabled' => $this->accounts[$account]['history_and_training_disabled'],
         ];
@@ -381,7 +383,7 @@ class V1
         // 流模式下，返回一个生成器
         if ($stream) {
             $data = $response->getBody();
-            while (! $data->eof()) {
+            while (!$data->eof()) {
                 $raw = Psr7\Utils::readLine($data);
                 $line = self::formatStreamMessage($raw);
                 if (self::checkFields($line)) {
@@ -420,7 +422,7 @@ class V1
 
                 $line = $this->formatStreamMessage($line);
 
-                if (! $this->checkFields($line)) {
+                if (!$this->checkFields($line)) {
                     if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                         throw new Exception("Rate limit exceeded");
                     }
@@ -471,9 +473,9 @@ class V1
     /**
      * 获取会话列表
      *
-     * @param  int  $offset
-     * @param  int  $limit
-     * @param  mixed  $account
+     * @param int $offset
+     * @param int $limit
+     * @param mixed $account
      *
      * @return array
      * @throws Exception
@@ -507,7 +509,7 @@ class V1
             throw new Exception('Response is not json');
         }
 
-        if (! isset($data['items'])) {
+        if (!isset($data['items'])) {
             throw new Exception('Field missing');
         }
 
@@ -517,8 +519,8 @@ class V1
     /**
      * 获取会话消息列表
      *
-     * @param  string  $conversationId
-     * @param  mixed  $account
+     * @param string $conversationId
+     * @param mixed $account
      *
      * @return array
      * @throws Exception
@@ -532,7 +534,7 @@ class V1
         }
 
         try {
-            $response = $this->http->get('conversation/'.$conversationId, [
+            $response = $this->http->get('conversation/' . $conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
@@ -554,9 +556,9 @@ class V1
     /**
      * 生成会话标题
      *
-     * @param  string  $conversationId
-     * @param  string  $messageId
-     * @param  mixed  $account
+     * @param string $conversationId
+     * @param string $messageId
+     * @param mixed $account
      *
      * @return bool
      * @throws Exception
@@ -570,7 +572,7 @@ class V1
         }
 
         try {
-            $response = $this->http->post('conversation/gen_title/'.$conversationId, [
+            $response = $this->http->post('conversation/gen_title/' . $conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
@@ -600,9 +602,9 @@ class V1
     /**
      * 修改会话标题
      *
-     * @param  string  $conversationId
-     * @param  string  $title
-     * @param  mixed  $account
+     * @param string $conversationId
+     * @param string $title
+     * @param mixed $account
      *
      * @return bool
      * @throws Exception
@@ -616,7 +618,7 @@ class V1
         }
 
         try {
-            $response = $this->http->patch('conversation/'.$conversationId, [
+            $response = $this->http->patch('conversation/' . $conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
@@ -645,8 +647,8 @@ class V1
     /**
      * 删除会话
      *
-     * @param  string  $conversationId
-     * @param  mixed  $account
+     * @param string $conversationId
+     * @param mixed $account
      *
      * @return bool
      * @throws Exception
@@ -660,7 +662,7 @@ class V1
         }
 
         try {
-            $response = $this->http->patch('conversation/'.$conversationId, [
+            $response = $this->http->patch('conversation/' . $conversationId, [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
@@ -689,7 +691,7 @@ class V1
     /**
      * 清空会话
      *
-     * @param  mixed  $account
+     * @param mixed $account
      *
      * @return bool
      * @throws Exception
@@ -732,10 +734,10 @@ class V1
     /**
      * 获取插件列表
      *
-     * @param  int  $offset
-     * @param  int  $limit
-     * @param  string  $status
-     * @param  mixed  $account
+     * @param int $offset
+     * @param int $limit
+     * @param string $status
+     * @param mixed $account
      *
      * @return array
      */
@@ -775,8 +777,8 @@ class V1
     /**
      * 安装插件
      *
-     * @param  string  $pluginId
-     * @param  mixed  $account
+     * @param string $pluginId
+     * @param mixed $account
      *
      * @return bool
      */
@@ -789,7 +791,7 @@ class V1
         }
 
         try {
-            $response = $this->http->patch('aip/p/'.$pluginId.'/user-settings', [
+            $response = $this->http->patch('aip/p/' . $pluginId . '/user-settings', [
                 'headers' => [
                     'Authorization' => $token,
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63',
@@ -811,8 +813,8 @@ class V1
     /**
      * 获取未验证插件
      *
-     * @param  string  $domain
-     * @param  mixed  $account
+     * @param string $domain
+     * @param mixed $account
      *
      * @return array
      */
@@ -850,8 +852,8 @@ class V1
     /**
      * 设置保存聊天记录与训练
      *
-     * @param  bool  $save
-     * @param  mixed  $account
+     * @param bool $save
+     * @param mixed $account
      *
      * @return bool
      */
@@ -871,7 +873,7 @@ class V1
                     'Referer' => 'https://chat.openai.com/chat',
                 ],
                 'query' => [
-                    'history_and_training_disabled' => ! $save,
+                    'history_and_training_disabled' => !$save,
                 ],
             ])->getBody()->getContents();
         } catch (GuzzleException $e) {
@@ -889,7 +891,7 @@ class V1
     /**
      * 检查响应行是否包含必要的字段
      *
-     * @param  mixed  $line
+     * @param mixed $line
      *
      * @return bool
      */
@@ -903,7 +905,7 @@ class V1
     /**
      * 格式化流消息为数组
      *
-     * @param  string  $line
+     * @param string $line
      *
      * @return array|false
      */
@@ -927,7 +929,7 @@ class V1
     /**
      * access_token 转换为 JWT
      *
-     * @param  string  $accessToken
+     * @param string $accessToken
      *
      * @return string
      * @throws Exception
@@ -949,7 +951,7 @@ class V1
             throw new Exception("Access token expired");
         }
 
-        return 'Bearer '.$accessToken;
+        return 'Bearer ' . $accessToken;
     }
 
     /**
@@ -966,7 +968,7 @@ class V1
         $response = curl_exec($ch);
         curl_close($ch);
 
-        if($response === false) {
+        if ($response === false) {
             throw new Exception('Request arkose token failed');
         }
 
@@ -975,7 +977,7 @@ class V1
             throw new Exception('Request arkose response is not json');
         }
 
-        if (! isset($data['token'])) {
+        if (!isset($data['token'])) {
             throw new Exception('Request arkose token failed');
         }
 
