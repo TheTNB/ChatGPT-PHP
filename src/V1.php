@@ -111,10 +111,9 @@ class V1
         string $prompt,
         string $conversationId = null,
         string $parentId = null,
-               $account = null,
+        $account = null,
         bool   $stream = false
-    ): Generator
-    {
+    ): Generator {
         // 如果账号为空，则随机选择一个账号
         if ($account === null) {
             $account = array_rand($this->accounts);
@@ -220,7 +219,7 @@ class V1
         // 流模式下，返回一个生成器
         if ($stream) {
             $data = $response->getBody();
-            while (!$data->eof()) {
+            while (! $data->eof()) {
                 $raw = Psr7\Utils::readLine($data);
                 $line = self::formatStreamMessage($raw);
                 if (self::checkFields($line)) {
@@ -259,7 +258,7 @@ class V1
 
                 $line = $this->formatStreamMessage($line);
 
-                if (!$this->checkFields($line)) {
+                if (! $this->checkFields($line)) {
                     if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                         throw new Exception("Rate limit exceeded");
                     }
@@ -322,10 +321,9 @@ class V1
         string $prompt,
         string $conversationId = null,
         string $parentId = null,
-               $account = null,
+        $account = null,
         bool   $stream = false
-    ): Generator
-    {
+    ): Generator {
         if ($account === null) {
             throw new Exception("Continue write must set account");
         } else {
@@ -383,7 +381,7 @@ class V1
         // 流模式下，返回一个生成器
         if ($stream) {
             $data = $response->getBody();
-            while (!$data->eof()) {
+            while (! $data->eof()) {
                 $raw = Psr7\Utils::readLine($data);
                 $line = self::formatStreamMessage($raw);
                 if (self::checkFields($line)) {
@@ -422,7 +420,7 @@ class V1
 
                 $line = $this->formatStreamMessage($line);
 
-                if (!$this->checkFields($line)) {
+                if (! $this->checkFields($line)) {
                     if (isset($line["detail"]) && $line["detail"] === "Too many requests in 1 hour. Try again later.") {
                         throw new Exception("Rate limit exceeded");
                     }
@@ -509,7 +507,7 @@ class V1
             throw new Exception('Response is not json');
         }
 
-        if (!isset($data['items'])) {
+        if (! isset($data['items'])) {
             throw new Exception('Field missing');
         }
 
@@ -873,7 +871,7 @@ class V1
                     'Referer' => 'https://chat.openai.com/chat',
                 ],
                 'query' => [
-                    'history_and_training_disabled' => !$save,
+                    'history_and_training_disabled' => ! $save,
                 ],
             ])->getBody()->getContents();
         } catch (GuzzleException $e) {
@@ -977,7 +975,7 @@ class V1
             throw new Exception('Request arkose response is not json');
         }
 
-        if (!isset($data['token'])) {
+        if (! isset($data['token'])) {
             throw new Exception('Request arkose token failed');
         }
 
