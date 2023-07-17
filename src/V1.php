@@ -50,6 +50,13 @@ class V1
                 'history_and_training_disabled' => $historyAndTrainingDisabled,
                 'arkose_token' => $arkoseToken,
             ];
+            if (substr($this->accounts[count($this->accounts) - 1]['model'], 0, 5) === 'gpt-4' && $arkoseToken === null) {
+                try {
+                    $this->accounts[count($this->accounts) - 1]['arkose_token'] = $this->getArkoseToken();
+                } catch (Exception $e) {
+                    $this->accounts[count($this->accounts) - 1]['arkose_token'] = '';
+                }
+            }
         } else {
             $this->accounts[$name] = [
                 'access_token' => $accessToken,
@@ -57,14 +64,12 @@ class V1
                 'history_and_training_disabled' => $historyAndTrainingDisabled,
                 'arkose_token' => $arkoseToken,
             ];
-        }
-
-        // GPT-4模型Arkose Token必须设置
-        if (substr($this->accounts[$name]['model'], 0, 5) === 'gpt-4' && $arkoseToken === null) {
-            try {
-                $this->accounts[$name]['arkose_token'] = $this->getArkoseToken();
-            } catch (Exception $e) {
-                $this->accounts[$name]['arkose_token'] = '';
+            if (substr($this->accounts[$name]['model'], 0, 5) === 'gpt-4' && $arkoseToken === null) {
+                try {
+                    $this->accounts[$name]['arkose_token'] = $this->getArkoseToken();
+                } catch (Exception $e) {
+                    $this->accounts[$name]['arkose_token'] = '';
+                }
             }
         }
     }
