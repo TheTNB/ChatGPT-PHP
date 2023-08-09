@@ -2,6 +2,10 @@
 
 All notable changes to `chatgpt-php` will be documented in this file.
 
+## 2.1.2 - 2023-07-17
+
+1. fix undefined paid.
+
 ## 2.1.1 - 2023-07-17
 
 1. fix name undefined.
