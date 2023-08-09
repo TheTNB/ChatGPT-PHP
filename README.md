@@ -25,7 +25,7 @@ Reconstruct from @acheong08's [ChatGPT](https://github.com/acheong08/ChatGPT)
 > 
 > Plus accounts has around 150 requests per hour rate limit
 > 
-> GPT-4: If you use GPT-4, you must provide arkose_token, usually the SDK can get it automatically through @pengzhile's API.
+> Arkose Token: Recently, OpenAI began to require Arkose Token while bypassing Cloudflare request conversation API, usually the SDK can get it automatically through @pengzhile's API
 
 ## Configuration
 
