@@ -50,7 +50,7 @@ class V1
                 'history_and_training_disabled' => $historyAndTrainingDisabled,
                 'arkose_token' => $arkoseToken,
             ];
-            if (substr($this->accounts[count($this->accounts) - 1]['model'], 0, 5) === 'gpt-4' && $arkoseToken === null) {
+            if ($arkoseToken === null) {
                 try {
                     $this->accounts[count($this->accounts) - 1]['arkose_token'] = $this->getArkoseToken();
                 } catch (Exception $e) {
@@ -64,7 +64,7 @@ class V1
                 'history_and_training_disabled' => $historyAndTrainingDisabled,
                 'arkose_token' => $arkoseToken,
             ];
-            if (substr($this->accounts[$name]['model'], 0, 5) === 'gpt-4' && $arkoseToken === null) {
+            if ($arkoseToken === null) {
                 try {
                     $this->accounts[$name]['arkose_token'] = $this->getArkoseToken();
                 } catch (Exception $e) {
@@ -179,11 +179,13 @@ class V1
                     'content' => ['content_type' => 'text', 'parts' => [$prompt]],
                 ],
             ],
+            'suggestions' => [],
             'conversation_id' => $conversationId,
             'parent_message_id' => $parentId,
             'model' => $this->accounts[$account]['model'],
             'arkose_token' => $this->accounts[$account]['arkose_token'],
             'history_and_training_disabled' => $this->accounts[$account]['history_and_training_disabled'],
+            'timezone_offset_min' => -480,
         ];
 
         try {
@@ -310,13 +312,14 @@ class V1
     /**
      * 续写
      *
+     * @param string $prompt
      * @param string|null $conversationId
      * @param string|null $parentId
      * @param mixed $account
      * @param bool $stream
      *
      * @return Generator
-     * @throws Exception|GuzzleException
+     * @throws Exception
      */
     public function continueWrite(
         string $prompt,
@@ -936,21 +939,6 @@ class V1
      */
     private function accessTokenToJWT(string $accessToken): string
     {
-        try {
-            $sAccessToken = explode(".", $accessToken);
-            $sAccessToken[1] .= str_repeat("=", (4 - strlen($sAccessToken[1]) % 4) % 4);
-            $dAccessToken = base64_decode($sAccessToken[1]);
-            $dAccessToken = json_decode($dAccessToken, true);
-        } catch (Exception $e) {
-            throw new Exception("Access token invalid");
-        }
-
-        // 检查是否过期
-        $exp = $dAccessToken['exp'] ?? null;
-        if ($exp !== null && $exp < time()) {
-            throw new Exception("Access token expired");
-        }
-
         return 'Bearer ' . $accessToken;
     }
 

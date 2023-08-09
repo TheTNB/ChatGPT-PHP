@@ -10,7 +10,9 @@
   "require": {
     "php": ">=7.4",
     "guzzlehttp/guzzle": "^7.2",
-    "ramsey/uuid": "^4.2"
+    "ramsey/uuid": "^4.2",
+    "ext-json": "*",
+    "ext-curl": "*"
   },
   "require-dev": {
     "pestphp/pest": "^1.22"
